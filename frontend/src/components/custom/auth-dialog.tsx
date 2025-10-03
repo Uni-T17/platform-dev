@@ -1,14 +1,16 @@
 "use client"
 
-import { primary_color } from "@/app/color";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Form, FormField, FormItem } from "../ui/form";
 import { useForm } from "react-hook-form";
-import { OnSignIn, OnSignUp, SignInForm, SignInSchema, SignUpForm, SignUpSchema } from "@/lib/model/auth-schema";
+import {SignInForm, SignInSchema, SignUpForm, SignUpSchema } from "@/lib/model/auth-schema";
 import CustomInput from "./form-item";
+import { useAuthStore } from "@/lib/model/auth-store";
+import { BookOpen } from "lucide-react";
+import { input_bg, primary_color } from "@/app/color";
 
 type AuthDialogProsps = {
     open : boolean
@@ -26,25 +28,37 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true} : Au
         resolver : zodResolver(SignUpSchema)
     })
 
+    const OnSignIn = (form : SignInForm) => {
+        useAuthStore.getState().setIsAuth(true)
+        console.log(form)
+    }
+
+    const OnSignUp = (form : SignUpForm) => {
+        useAuthStore.getState().setIsAuth(true)
+        console.log(form)
+    }
+
     return(
         <Dialog open={open} onOpenChange={onOpenChange}>
             {showTrigger && (
                 <DialogTrigger asChild>
                     <Button style={{background : primary_color}} className="me-10 " >
-                        <span className="font-semibold">Sign In</span>
+                        <span className="text-sm font-semibold">Sign In</span>
                     </Button>
                 </DialogTrigger>
             )}
 
-            <DialogContent >
+            <DialogContent className="w-[450px]">
                 
                     <DialogHeader className="items-center">
-                        <DialogTitle>Welcome to BookEx</DialogTitle>
+                        <DialogTitle className="flex gap-1 items-center">
+                            <BookOpen color={primary_color}/> Welcome to BookEx
+                        </DialogTitle>
                     </DialogHeader>
 
                     
                         <Tabs defaultValue="signin">
-                            <TabsList className="w-full rounded-md">
+                            <TabsList style={{backgroundColor : input_bg}} className="w-full rounded-sm">
                                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
                             </TabsList>
@@ -63,9 +77,10 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true} : Au
                                          <CustomInput 
                                             control={signInForm.control}
                                             path="password"
+                                            type="password"
                                             label="Password"
                                             placeholder="Enter your password"
-                                            className="mb-4"
+                                            className={`mb-4`}
                                          />
 
                                         <Button className="w-full" style={{backgroundColor : primary_color}} type="submit">Sign In</Button>
@@ -95,6 +110,7 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true} : Au
                                          <CustomInput 
                                             control={signUpForm.control}
                                             path="password"
+                                            type="password"
                                             label="Password"
                                             placeholder="Create a password"
                                             className="mb-4"
@@ -103,6 +119,7 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true} : Au
                                          <CustomInput 
                                             control={signUpForm.control}
                                             path="confirmPassword"
+                                            type="password"
                                             label="Confirm Password"
                                             placeholder="Confirm your password"
                                             className="mb-4"

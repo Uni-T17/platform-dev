@@ -2,6 +2,7 @@ import React from "react";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
+import { input_bg } from "@/app/color";
 
 type CustomFormProps<T extends FieldValues> = {
     control : Control<T>
@@ -21,7 +22,7 @@ export default function CustomInput<T extends FieldValues> ({control, path, labe
                 <FormItem className={className}>
                     {label && <FormLabel>{label}</FormLabel>}
                     <FormControl>
-                        <Input {...field} type={type || 'text'} placeholder={placeholder} />
+                        <Input style={{backgroundColor : input_bg}} {...field} type={type || 'text'} placeholder={placeholder} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

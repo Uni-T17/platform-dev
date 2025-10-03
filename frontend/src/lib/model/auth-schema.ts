@@ -16,11 +16,3 @@ export const SignUpSchema = z.object({
 
 export type SignUpForm = z.infer<typeof SignUpSchema>
 
-export const OnSignIn = (form : SignInForm) => {
-    console.log(form)
-    
-}
-
-export const OnSignUp = (form : SignUpForm) => {
-    console.log(form)
-}
