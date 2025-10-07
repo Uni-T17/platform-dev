@@ -1,0 +1,215 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category{
+  NONE
+  OTHER
+  NONFICTON
+  TEXTBOOK
+  BIOGRAPHY
+  SCIENCE
+  HISTORY
+  ROMANCE
+  MYSTERY
+  FANTASY
+  SELFHELP
+  BUSINESS
+  ART
+  COOKING
+  TRAVEL
+  CHILDREN
+  YOUNG
+  ADULT
+  PHYLOSOPHY
+  RELIGION
+  HEALTH
+  EDUCATION
+}
+
+enum Condition{
+  LIKENEW
+  VERYGOOD
+  GOOD
+  FAIR
+  POOR
+}
+ 
+enum RequestStatus{
+  PENDING
+  REJECT
+  APPROVE
+}
+
+model Otp {
+  id  Int @id @default(autoincrement())
+  email String @unique @db.VarChar(225)
+  otp String 
+  rememberToken String
+  verifiedToken String?
+  count Int @default(0) @db.SmallInt
+  error Int @default(0) @db.SmallInt
+  createdAt DateTime @default(now())
+  expiredAt DateTime
+  updatedAt DateTime @updatedAt
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  email String @unique @db.VarChar(225)
+  name String @db.VarChar(100)
+  password String 
+  phone String? @db.VarChar(15)
+  address String? @db.VarChar(225)
+  bio String? @db.VarChar(225)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  credits Credits?
+  // bookList BookList?
+  book Book[]
+  requestAsSeller RequestedBook[] @relation("AsSeller")
+  requestAsBuyers RequestedBook[] @relation("AsBuyer")
+  sellerTransaction Transaction[] @relation("sellerTransaction")
+  buyerTransaction Transaction[] @relation("buyerTransaction")
+  transactionHistory TransactionHistory?
+  reviewTo Review[] @relation("reviewTo")
+  reviewBy Review[] @relation("reviewBy")
+}
+
+model Book{
+  id Int @id @default(autoincrement())
+  title String @db.VarChar(225)
+  author String @db.VarChar(100)
+  isbn String? @db.VarChar(225)
+  category Category @default(NONE)
+  condition Condition 
+  description String? @db.VarChar(225)
+  image String @db.VarChar(225)
+  price Int
+  avaiableStatus Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookOwner User @relation(fields: [ownerId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+  ownerId Int
+
+  // bookList BookList @relation(fields: [bookListId],references: [id],onDelete: Cascade, onUpdate: Cascade)
+  // bookListId Int 
+
+  requestedBooks RequestedBook[]
+  transaction Transaction?
+
+
+}
+
+model Credits{
+  id Int @id @default(autoincrement())
+  creditOwner User @relation(fields: [userId],references: [id],onDelete: Cascade, onUpdate: Cascade)
+  userId Int @unique
+  balance Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// model BookList{
+//   id Int @id @default(autoincrement())
+//   bookListOwner User @relation(fields: [ownerId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+//   ownerId   Int @unique
+//   books Book[]
+// }
+
+model RequestedBook{
+  id Int @id @default(autoincrement())
+  requestedPrice Int
+  requestedStatus RequestStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  book Book @relation(fields: [bookId],references: [id])
+  bookId Int
+
+  seller User @relation("AsSeller",fields: [sellerId],references: [id])
+  sellerId Int 
+
+  buyer User @relation("AsBuyer",fields: [buyerId],references: [id])
+  buyerId Int 
+
+  transaction Transaction?
+}
+
+
+model Transaction{
+  id Int @id @default(autoincrement())
+  price Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requestedBook RequestedBook @relation(fields: [requestedBookId],references: [id])
+  requestedBookId Int @unique
+
+  book Book @relation(fields: [bookId],references: [id])
+  bookId Int @unique
+
+  seller User @relation("sellerTransaction",fields: [sellerId],references: [id])
+  sellerId Int 
+
+  buyer User @relation("buyerTransaction",fields: [buyerId],references: [id])
+  buyerId Int
+
+  transactionHistory TransactionHistory @relation(fields: [transactionHistoryId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+  transactionHistoryId Int
+  review Review?
+
+}
+
+model TransactionHistory{
+  id Int @id @default(autoincrement())
+  transactionCount Int @default(0)
+  totalIncome Int @default(0)
+  totalOutcome Int @default(0)
+  averageRating Int @default(0) @db.SmallInt
+  transactions Transaction[]
+
+  owner User @relation(fields: [ownerId],references: [id])
+  ownerId Int @unique
+
+  reviews Review[]
+
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  description String
+  rating Int @db.SmallInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  reviewTo User @relation("reviewTo",fields: [reviewToId],references: [id])
+  reviewToId Int
+  reviewBy User @relation("reviewBy",fields: [reviewById],references: [id])
+  reviewById Int
+
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  transactionId Int @unique
+
+  transactionHistory TransactionHistory @relation(fields: [transactionHistoryId], references: [id],onDelete: Cascade,onUpdate: Cascade)
+  transactionHistoryId Int
+
+  
+}
