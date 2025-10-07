@@ -1,17 +1,19 @@
 export type Book = {
+    image : string
     name : string
     author : string
     credits : number
     description : string
     condition : Condition
     general : string
-    reating : number
-    photo : string
-    category : Cateogry
+    rating : number
+    category : Category
+    reviewer : string
+    status : boolean
 }
 
 
-export enum Cateogry {
+export enum Category {
     Other,
     Fiction,
     NonFiction,
