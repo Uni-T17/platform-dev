@@ -13,20 +13,20 @@ app
   .use(morgan("dev"))
   .use(urlencoded({ extended: true }))
   .use(express.json())
-  .use(cors(corsOptions))
+  // .use(cors(corsOptions))
   .use(helmet())
   .use(compression());
 
-app.use("/v1", routes);
+app.use(routes);
 
 // if there is an error these codes will be executed (means don't stop the server will still run)
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-  const errorStatus = error.status || 500;
-  const errorMsg = error.msg || "Internal Server Error!";
-  const errorCode = error.code || "Error_Server";
-  res.status(errorStatus).json({
-    message: errorMsg,
-    error: errorCode,
-  });
-  next();
-});
+// app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+//   const errorStatus = error.status || 500;
+//   const errorMsg = error.msg || "Internal Server Error!";
+//   const errorCode = error.code || "Error_Server";
+//   res.status(errorStatus).json({
+//     message: errorMsg,
+//     error: errorCode,
+//   });
+//   next();
+// });
