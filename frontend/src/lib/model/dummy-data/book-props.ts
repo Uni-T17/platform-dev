@@ -1,16 +1,18 @@
-import { Book, Cateogry, Condition } from "../book";
+import { Book, Category, Condition } from "../book";
 
 
 export const Books : Book[]  = [
     {
-        name : "",
-        author : "",
-        credits : 1,
-        description : "",
-        condition : Condition.Good,
-        general : "",
-        reating : 1,
-        photo : "",
-        category : Cateogry.Adult
+        id: "1",
+        title: "",
+        author: "",
+        credits: 1,
+        description: "",
+        condition: Condition.Good,
+        general: "",
+        rating: 1,
+        image: "",
+        category: Category.Adult,
+        status: false
     }
 ]
