@@ -74,8 +74,12 @@ model User{
   phone String? @db.VarChar(15)
   address String? @db.VarChar(225)
   bio String? @db.VarChar(225)
+  lastLogin       DateTime?
+  errorLoginCount Int   @default(0) @db.SmallInt
+  randToken       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
 
   credits Credits?
   // bookList BookList?

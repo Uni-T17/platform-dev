@@ -13,6 +13,7 @@ import {
   checkUserAlreadyExist,
 } from "../utils/check";
 import { generateOtp, generateToken } from "../utils/generate";
+import moment from "moment";
 import bcrypt from "bcrypt";
 
 export const register = [
@@ -134,6 +135,12 @@ export const verifyOtp = [
       );
     }
 
+    // check otp is expired or not
+    const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 2;
+    if (isExpired) {
+      return next(createError("OTP Expired!", 410, errorCode.otpExpired));
+    }
+
     // If not match check same date
     const isMatchOtp = await bcrypt.compare(otp, otpRow!.otp);
     if (!isMatchOtp) {
@@ -168,6 +175,86 @@ export const verifyOtp = [
       message: "Successfully verified Otp!",
       verifiedToken,
       email: result.email,
+    });
+  },
+];
+
+export const confirmPassword = [
+  body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
+  body("name", "Invalid Name!").notEmpty().isLength({ max: 50 }),
+  body("verifiedToken", "Invalid Token!").trim().notEmpty().escape(),
+  body("password", "Invalid password!")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  body("confirmPassword", "Invalid password!")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { email, name, verifiedToken, password, confirmPassword } = req.body;
+
+    // check 2 passwords are same
+    if (password !== confirmPassword) {
+      return next(
+        createError("Password is not match!", 400, errorCode.invalid)
+      );
+    }
+
+    // check user already exist
+    const user = await getUserByEmail(email);
+    checkUserAlreadyExist(user);
+
+    // check otp exist
+    const otpRow = await getOtpByEmail(email);
+    checkOtpRowNotExist(otpRow);
+
+    // if the error in otpRow is 5 this might be an attack
+    if (otpRow!.error >= 5) {
+      return createError(
+        "This request might be an attack!",
+        401,
+        errorCode.attack
+      );
+    }
+
+    // check same verified token if not match this will be an attack make errors to 5
+    if (otpRow!.verifiedToken !== verifiedToken) {
+      const otpData = {
+        error: 5,
+      };
+      await updateOtp(otpRow!.id, otpData);
+      return next(
+        createError("This might be an attack", 401, errorCode.attack)
+      );
+    }
+    // check the otp is expired (if more than 15 min) the user need to request another otp
+    const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 15;
+    if (isExpired) {
+      return next(
+        createError(
+          "Your request is expired! Please Try again!",
+          410,
+          errorCode.otpExpired
+        )
+      );
+    }
+
+    // if pass hash the password and create new user without randtoken(which will replace later)
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    // generate access token (15min) and refresh token (30days)
+
+    // save these tokens in http only cookies
+
+    res.status(200).json({
+      message: "Successfully Registered an account! Please Log In.",
     });
   },
 ];
