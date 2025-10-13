@@ -9,16 +9,18 @@ import { useForm } from "react-hook-form";
 import {SignInForm, SignInSchema, SignUpForm, SignUpSchema } from "@/lib/model/auth-schema";
 import CustomInput from "./form-item";
 import { useAuthStore } from "@/lib/model/auth-store";
-import { BookOpen } from "lucide-react";
+import { BookOpen, LucideProps } from "lucide-react";
 import { input_bg, primary_color } from "@/app/color";
 
 type AuthDialogProsps = {
     open : boolean
     onOpenChange : (open : boolean) => void;
     showTrigger ?: boolean
+    icon ?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>
 }
 
-export default function AuthDialog({open, onOpenChange, showTrigger = true} : AuthDialogProsps) {
+export default function AuthDialog({open, onOpenChange, showTrigger = true, icon} : AuthDialogProsps) {
+    const Icon = icon; 
 
     const signInForm = useForm<SignInForm>({
         resolver : zodResolver(SignInSchema)
@@ -42,7 +44,8 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true} : Au
         <Dialog open={open} onOpenChange={onOpenChange}>
             {showTrigger && (
                 <DialogTrigger asChild>
-                    <Button style={{background : primary_color}} className="me-10 " >
+                    <Button style={{background : primary_color}} className={`me-10 ${Icon ? "flex justify-between items-center gap-2" : ""}`} >
+                        {Icon && <Icon /> }
                         <span className="text-sm font-semibold">Sign In</span>
                     </Button>
                 </DialogTrigger>

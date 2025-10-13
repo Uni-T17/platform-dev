@@ -23,7 +23,7 @@ export default function Navbar() {
     <nav className="mb-10 bg-white">
         <div className="h-16 pt-3 ps-20 pe-20 flex justify-between items-center">
             
-            <Link href={""}>
+            <Link href={"/books"}>
                 <div className="ms-10 flex items-center">
                     <img src="/logo.png" width={70} height={70}  />
                     <div className="leading-0.5">
@@ -37,17 +37,17 @@ export default function Navbar() {
 
             <div>
                 <Link className="me-10 font-semibold text-sm p-2 rounded-md hover:bg-[oklch(0.8_0.12_65)]"
-                    href={""} onClick={requireAuth}>
+                    href={"/books"} onClick={requireAuth}>
                     Browse Books
                 </Link>
                 <Link className="font-semibold p-2 text-sm rounded-md hover:bg-[oklch(0.8_0.12_65)]" 
-                    href={"/1"} onClick={requireAuth}>
+                    href={"/books/new"} onClick={requireAuth}>
                     List Books
                 </Link>
 
                 {isAuth && 
                     <Link className="ms-10 font-semibold text-sm p-2 rounded-md hover:bg-[oklch(0.8_0.12_65)]" 
-                        href={""} onClick={requireAuth}>
+                        href={"/exchanges"} onClick={requireAuth}>
                         My Exchanges
                     </Link>
                 }
@@ -58,12 +58,12 @@ export default function Navbar() {
             {isAuth && 
                     <div className="flex justify-between items-center">
                         <Link className="ms-10 flex gap-2 text-sm font-semibold p-2 rounded-md hover:bg-[oklch(0.8_0.12_65)]" 
-                        href={""} onClick={requireAuth}>
+                        href={"/credits"} onClick={requireAuth}>
                         <Wallet size={20} /> Credits
                         </Link>
 
                         <Link className="ms-10 flex gap-2 text-sm font-semibold p-2 rounded-md hover:bg-[oklch(0.8_0.12_65)]" 
-                            href={""} onClick={requireAuth}>
+                            href={"/profile"} onClick={requireAuth}>
                             <User size={20} /> Profile
                         </Link>
                     </div>

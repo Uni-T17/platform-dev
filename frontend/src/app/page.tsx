@@ -26,9 +26,7 @@ export default function Home() {
           name: "Alice Johnson",
         }}
       />
-
-      <CreditsUsage />
-      <TipCredits />
+      
     </div>
   );
 }
