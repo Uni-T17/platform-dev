@@ -12,16 +12,35 @@ export type Book = {
     status : boolean
 }
 
-
 export enum Category {
-    Other,
-    Fiction,
-    NonFiction,
-    TextBook, Biography, Science, History, Romance, Mystery,
-    Fantasy, Selfhelp, Business, Art, Cooking, Travel,
-    Children, Young, Adult, Phylosophy, Religion, Health, Eductaion
+    Other = 'Other',
+    Fiction = 'Fiction',
+    NonFiction = 'NonFiction',
+    TextBook = 'TextBook',
+    Biography = 'Biography',
+    Science = 'Science',
+    History = 'History',
+    Romance = 'Romance',
+    Mystery = 'Mystery',
+    Fantasy = 'Fantasy',
+    SelfHelp = 'SelfHelp',
+    Business = 'Business',
+    Art = 'Art',
+    Cooking = 'Cooking',
+    Travel = 'Travel',
+    Children = 'Children',
+    Young = 'Young',
+    Adult = 'Adult',
+    Philosophy = 'Philosophy',
+    Religion = 'Religion',
+    Health = 'Health',
+    Education = 'Education',
 }
 
 export enum Condition {
-    LikeNew, VeryGood, Good, Fair, Poor
+    LikeNew = 'LikeNew',
+    VeryGood = 'VeryGood', 
+    Good = 'Good', 
+    Fair = 'Fair', 
+    Poor = 'Poor'
 }

@@ -6,8 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Category } from "@/lib/model/book";
-import { AspectRatio } from "../ui/aspect-ratio";
+
 import {
   Card,
   CardAction,
@@ -15,10 +14,11 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Condition } from "@/lib/model/book";
+import { Category, Condition } from "@/lib/model/book";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { primary_color } from "@/app/color";
+import { AspectRatio } from "../ui/aspect-ratio";
 
 const WebImage = z.union([z.string().url(), z.string().startsWith("/")]);
 

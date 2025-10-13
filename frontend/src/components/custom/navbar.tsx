@@ -41,7 +41,7 @@ export default function Navbar() {
                     Browse Books
                 </Link>
                 <Link className="font-semibold p-2 text-sm rounded-md hover:bg-[oklch(0.8_0.12_65)]" 
-                    href={""} onClick={requireAuth}>
+                    href={"/1"} onClick={requireAuth}>
                     List Books
                 </Link>
 

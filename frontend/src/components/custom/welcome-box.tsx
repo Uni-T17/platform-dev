@@ -5,8 +5,8 @@ import { useAuthStore } from "@/lib/model/auth-store";
 import { is } from "zod/v4/locales";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { PersonIcon, PlusIcon, SketchLogoIcon } from "@radix-ui/react-icons";
 import { primary_color } from "@/app/color";
+import { CreditCard, PersonStandingIcon, PlusIcon } from "lucide-react";
 
 function WelcomeBox() {
   const { isAuth } = useAuthStore();
@@ -55,7 +55,7 @@ function WelcomeBox() {
             <Link href={""}>
               <Button className="bg-white hover:bg-[#F1FBF9] text-black pb-2 px-2 rounded-lg border border-gray-300">
                 {" "}
-                <SketchLogoIcon /> My Credits{" "}
+                <CreditCard /> My Credits{" "}
               </Button>
             </Link>
           </div>
@@ -81,7 +81,7 @@ function WelcomeBox() {
                 onClick={() => setAuthOpen(true)}
               >
                 {" "}
-                <PersonIcon /> Join BookEx{" "}
+                <PersonStandingIcon /> Join BookEx{" "}
               </Button>
             </Link>
 

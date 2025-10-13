@@ -20,9 +20,18 @@ export default function CustomInput<T extends FieldValues> ({control, path, labe
             name={path}
             render={({field}) => 
                 <FormItem className={className}>
-                    {label && <FormLabel>{label}</FormLabel>}
+                    {label && <FormLabel className="font-semibold">{label}</FormLabel>}
                     <FormControl>
-                        <Input style={{backgroundColor : input_bg}} {...field} type={type || 'text'} placeholder={placeholder} />
+                        <Input className="border focus:border-[#2B9B9B] focus-visible:border-[#2B9B9B] focus-visible:ring-0 focus-visible:ring-offset-5 focus:outline-3" 
+                        style={{backgroundColor : input_bg}} {...field} type={type || 'text'} placeholder={placeholder}  
+                        onChange={(e) => {
+                            if (type === 'number') {
+                                const v = e.target.value;
+                                field.onChange(v === "" ? "" : Number(v));
+                            } else {
+                                field.onChange(e);
+                            }
+                            }} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
