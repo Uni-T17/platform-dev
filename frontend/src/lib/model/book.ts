@@ -1,6 +1,7 @@
 export type Book = {
+    id: string
     image : string
-    name : string
+    title: string
     author : string
     credits : number
     description : string
@@ -8,7 +9,6 @@ export type Book = {
     general : string
     rating : number
     category : Category
-    reviewer : string
     status : boolean
 }
 
