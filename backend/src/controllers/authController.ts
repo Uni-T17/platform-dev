@@ -7,16 +7,16 @@ import {
   getUserByEmail,
   updateOtp,
 } from "../services/authServices";
-import { checkSameDateAndError, checkUserAlreadyExist } from "../utils/check";
+import {
+  checkOtpRowNotExist,
+  checkSameDateAndError,
+  checkUserAlreadyExist,
+} from "../utils/check";
 import { generateOtp, generateToken } from "../utils/generate";
 import bcrypt from "bcrypt";
 
 export const register = [
-  body("email", "Invalid Email Address!")
-    .trim()
-    .notEmpty()
-    .isEmail()
-    .withMessage("Please enter a valid email address."),
+  body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
@@ -27,7 +27,8 @@ export const register = [
     checkUserAlreadyExist(user);
 
     // generate
-    const otp = generateOtp();
+    // const otp = generateOtp();
+    const otp = 123456; // Only for production
 
     // crypt otp for safety
     const salt = await bcrypt.genSalt(10);
@@ -71,7 +72,7 @@ export const register = [
         return next(
           createError(
             "You can only request 3 otp per day!",
-            405,
+            429,
             errorCode.overLimit
           )
         );
@@ -88,9 +89,85 @@ export const register = [
     res.status(200).json({
       message: `Otp is successfully sent to ${result.email}`,
       email: email,
-      otp: hashOtp,
       rememberToken: result.rememberToken,
       expiredAt: `The otp will be expired within 5 minutes.`,
+    });
+  },
+];
+
+export const verifyOtp = [
+  body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
+  body("otp", "Invalid Otp!")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 6, max: 6 })
+    .matches("^[0-9]+$"),
+  body("rememberToken", "Invalid Token!").trim().notEmpty().escape(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { email, otp, rememberToken } = req.body;
+    const user = await getUserByEmail(email);
+    checkUserAlreadyExist(user);
+    const otpRow = await getOtpByEmail(email);
+    checkOtpRowNotExist(otpRow);
+
+    // check otp is same date and 5 errors
+    const today = new Date().toLocaleDateString();
+    const lastUpdated = new Date(otpRow!.updatedAt).toLocaleDateString();
+    const isSameDate = today === lastUpdated;
+    checkSameDateAndError(isSameDate, otpRow!.error);
+
+    // check remember tokens are same (If not same might be attack and turn error 5)
+
+    let otpData;
+    if (otpRow!.rememberToken !== rememberToken) {
+      otpData = {
+        error: 5,
+      };
+      await updateOtp(otpRow!.id, otpData);
+      return next(
+        createError("This might be an Attack", 400, errorCode.attack)
+      );
+    }
+
+    // If not match check same date
+    const isMatchOtp = await bcrypt.compare(otp, otpRow!.otp);
+    if (!isMatchOtp) {
+      // If same Date increase error plus 1
+      if (isSameDate) {
+        otpData = {
+          error: {
+            increment: 1,
+          },
+        };
+      } else {
+        // If not same Date turn error to 1
+        otpData = {
+          error: 1,
+        };
+      }
+      // Update otp and Return error for wrong otp
+      await updateOtp(otpRow!.id, otpData);
+      return next(createError("Otp is incorrect!", 400, errorCode.invalid));
+    }
+
+    // If match generate verified Token and let move to confirm the password
+    const verifiedToken = generateToken();
+    otpData = {
+      verifiedToken,
+      error: 0,
+      count: 1,
+    };
+    const result = await updateOtp(otpRow!.id, otpData);
+
+    res.status(200).json({
+      message: "Successfully verified Otp!",
+      verifiedToken,
+      email: result.email,
     });
   },
 ];

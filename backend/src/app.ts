@@ -22,7 +22,7 @@ app.use(routes);
 // if there is an error these codes will be executed (means don't stop the server will still run)
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const errorStatus = error.status || 500;
-  const errorMsg = error.msg || "Internal Server Error!";
+  const errorMsg = error.message || "Internal Server Error!";
   const errorCode = error.code || "Error_Server";
   res.status(errorStatus).json({
     message: errorMsg,
