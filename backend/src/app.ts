@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import routes from "./routes";
+import cookieParser from "cookie-parser";
 
 export const app = express();
 
@@ -15,6 +16,7 @@ app
   .use(express.json())
   // .use(cors(corsOptions))
   .use(helmet())
+  .use(cookieParser())
   .use(compression());
 
 app.use(routes);

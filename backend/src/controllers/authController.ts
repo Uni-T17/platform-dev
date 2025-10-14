@@ -6,11 +6,13 @@ import {
   createOtp,
   getOtpByEmail,
   getUserByEmail,
+  getUserById,
   updateOtp,
   updateUser,
 } from "../services/authServices";
 import {
   checkOtpRowNotExist,
+  checkRefreshTokenExist,
   checkSameDateAndError,
   checkUserAlreadyExist,
   checkUserNotExist,
@@ -389,6 +391,7 @@ export const login = [
     userData = {
       errorLoginCount: 0,
       randToken: refreshToken,
+      status: "ACTIVE",
     };
     await updateUser(user!.id, userData);
 
@@ -412,3 +415,73 @@ export const login = [
       });
   },
 ];
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const refreshToken = req.cookies ? req.cookies.refreshToken : null;
+
+  // Check Refresh Token Exist Or Not
+  checkRefreshTokenExist(refreshToken);
+
+  let decoded;
+  try {
+    decoded = (await jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET!
+    )) as {
+      id: number;
+      email: string;
+    };
+  } catch (error) {
+    return next(
+      createError(
+        "Your are not an unauthenticated User",
+        401,
+        errorCode.unauthenticated
+      )
+    );
+  }
+
+  // if id is not a number throw error
+  if (isNaN(decoded!.id)) {
+    return next(
+      createError(
+        "Your are not an unauthenticated User",
+        401,
+        "Error_Unauthenticated"
+      )
+    );
+  }
+
+  // get user by id and update the randtoken
+  const user = await getUserById(decoded!.id);
+  checkUserNotExist(user);
+
+  const randToken = generateToken();
+
+  const userData = {
+    randToken,
+  };
+
+  await updateUser(user!.id, userData);
+
+  // Remove the cookies
+
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
+  });
+
+  res.status(200).json({
+    message: "Successfully Logout! See Yoo!!",
+  });
+};

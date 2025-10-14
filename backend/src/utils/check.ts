@@ -26,3 +26,13 @@ export const checkUserNotExist = (user: any) => {
     throw createError("User doesn't exist!", 400, errorCode.invalid);
   }
 };
+
+export const checkRefreshTokenExist = (refreshToken: string) => {
+  if (!refreshToken) {
+    throw createError(
+      "Your are not an unauthenticated User",
+      401,
+      errorCode.unauthenticated
+    );
+  }
+};
