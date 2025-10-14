@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
 import { createError, errorCode } from "../utils/error";
 import {
+  createNewUser,
   createOtp,
   getOtpByEmail,
   getUserByEmail,
   updateOtp,
+  updateUser,
 } from "../services/authServices";
 import {
   checkOtpRowNotExist,
@@ -15,6 +17,10 @@ import {
 import { generateOtp, generateToken } from "../utils/generate";
 import moment from "moment";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 export const register = [
   body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
@@ -216,10 +222,8 @@ export const confirmPassword = [
 
     // if the error in otpRow is 5 this might be an attack
     if (otpRow!.error >= 5) {
-      return createError(
-        "This request might be an attack!",
-        401,
-        errorCode.attack
+      return next(
+        createError("This request might be an attack!", 401, errorCode.attack)
       );
     }
 
@@ -248,13 +252,63 @@ export const confirmPassword = [
     // if pass hash the password and create new user without randtoken(which will replace later)
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
+    const randToken = "Will Replace Later";
+
+    const userData = {
+      email,
+      name,
+      password: hashPassword,
+      randToken,
+      credits: { create: { balance: 0 } },
+      transactionHistory: { create: {} },
+    };
+
+    const newUser = await createNewUser(userData);
 
     // generate access token (15min) and refresh token (30days)
+    const accessTokenPayload = { id: newUser.id };
+    const refreshTokenPayload = { id: newUser.id, email: newUser.email };
 
+    const accessToken = jwt.sign(
+      accessTokenPayload,
+      process.env.ACCESS_TOKEN_SECRET!,
+      {
+        expiresIn: 15 * 60,
+      }
+    );
+    const refreshToken = jwt.sign(
+      refreshTokenPayload,
+      process.env.REFRESH_TOKEN_SECRET!,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    const newUserData = {
+      randToken: refreshToken,
+    };
+
+    // update randtoken in user data
+    await updateUser(newUser!.id, newUserData);
     // save these tokens in http only cookies
 
-    res.status(200).json({
-      message: "Successfully Registered an account! Please Log In.",
-    });
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "strict",
+        maxAge: 15 * 60 * 1000, // 15 min
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      })
+      .status(200)
+      .json({
+        message: "Successfully Registered an account! Please Log In.",
+        newUserId: newUser.id,
+      });
   },
 ];
