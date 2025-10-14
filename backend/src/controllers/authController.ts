@@ -330,22 +330,23 @@ export const login = [
     const user = await getUserByEmail(email);
     checkUserNotExist(user);
 
-    if (user?.status === "FREEZE") {
-      return next(
-        createError("The user is Freezed!", 408, errorCode.accountFreeze)
-      );
-    }
     let userData;
-    const errorLoginCount = user!.errorLoginCount;
+    const today = new Date().toLocaleDateString();
+    const lastUpdated = new Date(user!.updatedAt).toLocaleDateString();
+    const isSameDate = today === lastUpdated;
+
+    if (user?.status === "FREEZE") {
+      if (isSameDate) {
+        return next(
+          createError("The user is Freezed!", 408, errorCode.accountFreeze)
+        );
+      }
+    }
 
     // Check the passwords match
     const isPasswordsMatch = await bcrypt.compare(password, user!.password);
     // if not increase error count 1 if more than 10 errors, acount will be freezed for today
     if (!isPasswordsMatch) {
-      const today = new Date().toLocaleDateString();
-      const lastUpdated = new Date(user!.updatedAt).toLocaleDateString();
-      const isSameDate = today === lastUpdated;
-
       // If not same date Let user login
       if (!isSameDate) {
         userData = {
@@ -362,9 +363,9 @@ export const login = [
             errorLoginCount: { increment: 1 },
           };
         }
-        await updateUser(user!.id, userData);
-        return next(createError("Wrong Password!", 401, errorCode.invalid));
       }
+      await updateUser(user!.id, userData);
+      return next(createError("Wrong Password!", 401, errorCode.invalid));
     }
 
     const accessTokenPayload = { id: user!.id };
