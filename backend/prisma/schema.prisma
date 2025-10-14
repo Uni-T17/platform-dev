@@ -53,6 +53,12 @@ enum RequestStatus{
   APPROVE
 }
 
+enum Status{
+  ACTIVE
+  INACTIVE
+  FREEZE
+}
+
 model Otp {
   id  Int @id @default(autoincrement())
   email String @unique @db.VarChar(225)
@@ -77,6 +83,7 @@ model User{
   lastLogin       DateTime?
   errorLoginCount Int   @default(0) @db.SmallInt
   randToken       String
+  status Status @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

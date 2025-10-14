@@ -13,6 +13,7 @@ import {
   checkOtpRowNotExist,
   checkSameDateAndError,
   checkUserAlreadyExist,
+  checkUserNotExist,
 } from "../utils/check";
 import { generateOtp, generateToken } from "../utils/generate";
 import moment from "moment";
@@ -309,6 +310,104 @@ export const confirmPassword = [
       .json({
         message: "Successfully Registered an account! Please Log In.",
         newUserId: newUser.id,
+      });
+  },
+];
+
+export const login = [
+  body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
+  body("password", "Invalid password!")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { email, password } = req.body;
+    const user = await getUserByEmail(email);
+    checkUserNotExist(user);
+
+    if (user?.status === "FREEZE") {
+      return next(
+        createError("The user is Freezed!", 408, errorCode.accountFreeze)
+      );
+    }
+    let userData;
+    const errorLoginCount = user!.errorLoginCount;
+
+    // Check the passwords match
+    const isPasswordsMatch = await bcrypt.compare(password, user!.password);
+    // if not increase error count 1 if more than 10 errors, acount will be freezed for today
+    if (!isPasswordsMatch) {
+      const today = new Date().toLocaleDateString();
+      const lastUpdated = new Date(user!.updatedAt).toLocaleDateString();
+      const isSameDate = today === lastUpdated;
+
+      // If not same date Let user login
+      if (!isSameDate) {
+        userData = {
+          errorLoginCount: 1,
+          status: "ACTIVE",
+        };
+      } else {
+        if (user!.errorLoginCount >= 10) {
+          userData = {
+            status: "FREEZE",
+          };
+        } else {
+          userData = {
+            errorLoginCount: { increment: 1 },
+          };
+        }
+        await updateUser(user!.id, userData);
+        return next(createError("Wrong Password!", 401, errorCode.invalid));
+      }
+    }
+
+    const accessTokenPayload = { id: user!.id };
+    const refreshTokenPayload = { id: user!.id, email: user!.email };
+
+    const accessToken = await jwt.sign(
+      accessTokenPayload,
+      process.env.ACCESS_TOKEN_SECRET!,
+      {
+        expiresIn: 15 * 60,
+      }
+    );
+    const refreshToken = await jwt.sign(
+      refreshTokenPayload,
+      process.env.REFRESH_TOKEN_SECRET!,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    userData = {
+      errorLoginCount: 0,
+      randToken: refreshToken,
+    };
+    await updateUser(user!.id, userData);
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "strict",
+        maxAge: 15 * 60 * 1000, // 15 min
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      })
+      .status(200)
+      .json({
+        message: "Successfully Login.",
+        userId: user!.id,
       });
   },
 ];

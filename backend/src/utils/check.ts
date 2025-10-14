@@ -20,3 +20,9 @@ export const checkOtpRowNotExist = (otpRow: any) => {
     throw createError("Otp doesn't exist", 400, errorCode.invalid);
   }
 };
+
+export const checkUserNotExist = (user: any) => {
+  if (!user) {
+    throw createError("User doesn't exist!", 400, errorCode.invalid);
+  }
+};
