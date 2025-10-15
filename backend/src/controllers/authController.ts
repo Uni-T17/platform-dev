@@ -38,7 +38,7 @@ export const register = [
 
     // generate
     // const otp = generateOtp();
-    const otp = 123456; // Only for production
+    const otp = 123456; // Only for development
 
     // crypt otp for safety
     const salt = await bcrypt.genSalt(10);
@@ -373,14 +373,14 @@ export const login = [
     const accessTokenPayload = { id: user!.id };
     const refreshTokenPayload = { id: user!.id, email: user!.email };
 
-    const accessToken = await jwt.sign(
+    const accessToken = jwt.sign(
       accessTokenPayload,
       process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: 15 * 60,
       }
     );
-    const refreshToken = await jwt.sign(
+    const refreshToken = jwt.sign(
       refreshTokenPayload,
       process.env.REFRESH_TOKEN_SECRET!,
       {
