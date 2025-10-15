@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { primary_color } from "@/app/color";
 import { AspectRatio } from "../ui/aspect-ratio";
+import { useAuthStore } from "@/lib/model/auth-store";
 
 const WebImage = z.union([z.string().url(), z.string().startsWith("/")]);
 
@@ -42,6 +43,9 @@ export type BookType = z.infer<typeof BookSchema>;
 type Props = { book: BookType };
 
 function BookCard({ book }: Props) {
+
+  const {isAuth, authOpen , openAuth} = useAuthStore();
+
   const result = BookSchema.safeParse(book);
   const router = useRouter();
   const handleView = () => router.push(`/books/${book.id}`);
@@ -109,9 +113,16 @@ function BookCard({ book }: Props) {
         </div>
       </CardContent>
 
+
+
       {/* Button footer */}
       <CardFooter className="mt-auto flex justify-between items-center px-4 pb-4">
-        <Link href={`/books/${book.id}`} className="w-full">
+        <Link href={isAuth ? `/books/${book.id}` : '#'} onClick={(e) => {
+          if(!isAuth){
+            e.preventDefault()
+            openAuth()
+          }
+        }} className="w-full">
           <Button
             className=" hover:bg-[#1A7A7A] w-full text-white pb-2 px-4 rounded-lg"
             style={{ backgroundColor: primary_color }}

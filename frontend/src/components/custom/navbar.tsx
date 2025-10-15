@@ -3,21 +3,22 @@
 import Link from "next/link";
 import { primary_color } from "@/app/color";
 import AuthDialog from "./auth-dialog";
-import React, { useState } from "react";
+import React from "react";
 import { useAuthStore } from "@/lib/model/auth-store";
-import { CreditCard, User, Wallet } from "lucide-react";
+import { User, Wallet } from "lucide-react";
+
 
 export default function Navbar() {
 
-    const {isAuth} = useAuthStore();
-    const [authOpen, setAuthOpen] = useState(false)
+    const {isAuth, authOpen , openAuth, closeAuth} = useAuthStore();
 
     const requireAuth : React.MouseEventHandler<HTMLAnchorElement> = (e) => {
         if(!isAuth){
             e.preventDefault()
-            setAuthOpen(true)
+            openAuth()
         }
     }
+
 
   return (
     <nav className="mb-10 bg-white">
@@ -70,7 +71,9 @@ export default function Navbar() {
             }
 
             {!isAuth && 
-                <AuthDialog open={authOpen} onOpenChange={setAuthOpen} showTrigger/>
+                <AuthDialog open={authOpen}
+                onOpenChange={(isOpen) => (isOpen ? openAuth() : closeAuth())} 
+                showTrigger/>
             }
             
         </div>

@@ -1,4 +1,4 @@
-import {z} from "zod"
+import {email, z} from "zod"
 
 export const SignInSchema = z.object({
     email : z.string(),
@@ -15,4 +15,17 @@ export const SignUpSchema = z.object({
 })
 
 export type SignUpForm = z.infer<typeof SignUpSchema>
+
+export const RequestOtpSchema = z.object({
+    email : z.email().nonempty("please enter email"),
+})
+
+export type RequestOtpForm = z.infer<typeof RequestOtpSchema>
+
+export const VarifyOtpSchema = z.object({
+    email : z.email().nonempty("please enter email"),
+    otp : z.number()
+})
+
+export type VarifyOtpForm = z.infer<typeof VarifyOtpSchema>
 

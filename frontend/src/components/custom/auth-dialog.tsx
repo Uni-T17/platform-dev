@@ -2,15 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Form, FormField, FormItem } from "../ui/form";
+import { Form } from "../ui/form";
 import { useForm } from "react-hook-form";
-import {SignInForm, SignInSchema, SignUpForm, SignUpSchema } from "@/lib/model/auth-schema";
+import { RequestOtpForm, RequestOtpSchema, SignInForm, SignInSchema, SignUpForm, SignUpSchema, VarifyOtpForm, VarifyOtpSchema } from "@/lib/model/auth-schema";
 import CustomInput from "./form-item";
 import { useAuthStore } from "@/lib/model/auth-store";
 import { BookOpen, LucideProps } from "lucide-react";
 import { input_bg, primary_color } from "@/app/color";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type AuthDialogProsps = {
     open : boolean
@@ -20,6 +22,11 @@ type AuthDialogProsps = {
 }
 
 export default function AuthDialog({open, onOpenChange, showTrigger = true, icon} : AuthDialogProsps) {
+
+    const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY">("REQUEST");
+
+
+    const router = useRouter()
     const Icon = icon; 
 
     const signInForm = useForm<SignInForm>({
@@ -30,13 +37,30 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
         resolver : zodResolver(SignUpSchema)
     })
 
+    const RequestOtpForm = useForm<RequestOtpForm>({
+        resolver : zodResolver(RequestOtpSchema)
+    })
+
+    const VarifyOtpForm = useForm<VarifyOtpForm>({
+        resolver : zodResolver(VarifyOtpSchema)
+    })
+
     const OnSignIn = (form : SignInForm) => {
         useAuthStore.getState().setIsAuth(true)
         console.log(form)
+        router.push("/books")
     }
 
     const OnSignUp = (form : SignUpForm) => {
         useAuthStore.getState().setIsAuth(true)
+        console.log(form)
+    }
+
+    const OnRequestOtp = (form : RequestOtpForm) => {
+        console.log(form)
+    }
+
+    const OnVarifyOtp = (form : VarifyOtpForm) => {
         console.log(form)
     }
 
@@ -57,6 +81,11 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
                         <DialogTitle className="flex gap-1 items-center">
                             <BookOpen color={primary_color}/> Welcome to BookEx
                         </DialogTitle>
+
+                        <DialogClose asChild>
+                            <button onClick={() => onOpenChange(false)} type="button" >
+                            </button>
+                        </DialogClose>
                     </DialogHeader>
 
                     
@@ -92,7 +121,23 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
                             </TabsContent>
 
                             <TabsContent value="signup">
-                                <Form {...signUpForm}>
+
+                                {signUpStep === 'REQUEST' ? (
+                                    <Form {...RequestOtpForm}>
+                                        <form action="">
+
+                                        </form>
+                                    </Form>
+                                ) : (
+                                    <Form {...VarifyOtpForm}>
+                                        <form action="">
+                                            
+                                        </form>
+                                    </Form>
+                                )}
+
+
+                                {/* <Form {...signUpForm}>
                                     <form onSubmit={signUpForm.handleSubmit(OnSignUp)}>
                                         <CustomInput 
                                             control={signUpForm.control}
@@ -130,7 +175,7 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
 
                                         <Button className="w-full" style={{backgroundColor : primary_color}} type="submit">Create Account</Button>
                                     </form>
-                                </Form>
+                                </Form> */}
                             </TabsContent>
                         </Tabs>
                     
