@@ -13,6 +13,8 @@ import { BookOpen, Check, LucideProps } from "lucide-react";
 import { input_bg, primary_color } from "@/app/color";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BASEURL } from "@/lib/url";
+import { email } from "zod";
 
 type AuthDialogProsps = {
     open : boolean
@@ -57,8 +59,15 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
         console.log(form)
     }
 
-    const OnRequestOtp = (form : RequestOtpForm) => {
+    const OnRequestOtp = async (form : RequestOtpForm) => {
         console.log(form)
+
+        const res = await fetch(`${BASEURL}/api/v1/register`, {
+            method : "POST",
+            headers : { "Content-Type" : "application/json"},
+            body : JSON.stringify({email : form.email})
+        });
+        console.log(await res.json())
     }
 
     const OnVarifyOtp = (form : VarifyOtpForm) => {

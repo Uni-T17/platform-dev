@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bookex-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: unit7111
+      POSTGRES_DB: bookex
+    volumes:
+      - bookex_db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: bookex-backend
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      # IMPORTANT: inside Docker, DB host is the service name "db" (not localhost)
+      DATABASE_URL: "postgresql://postgres:unit7111@db:5432/bookex?schema=public"
+      PORT: "8080"
+      NODE_ENV: "development"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    # ensure Prisma Client exists after bind-mount, then run dev with nodemon
+    command: sh -c "npx prisma generate && npm run dev"
+
+volumes:
+  bookex_db_data:
