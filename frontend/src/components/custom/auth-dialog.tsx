@@ -9,10 +9,10 @@ import { useForm } from "react-hook-form";
 import { RequestOtpForm, RequestOtpSchema, SignInForm, SignInSchema, SignUpForm, SignUpSchema, VarifyOtpForm, VarifyOtpSchema } from "@/lib/model/auth-schema";
 import CustomInput from "./form-item";
 import { useAuthStore } from "@/lib/model/auth-store";
-import { BookOpen, LucideProps } from "lucide-react";
+import { BookOpen, Check, LucideProps } from "lucide-react";
 import { input_bg, primary_color } from "@/app/color";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type AuthDialogProsps = {
     open : boolean
@@ -23,7 +23,8 @@ type AuthDialogProsps = {
 
 export default function AuthDialog({open, onOpenChange, showTrigger = true, icon} : AuthDialogProsps) {
 
-    const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY">("REQUEST");
+    const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY" | "Details">("REQUEST");
+    const [otpEmail, SetOtpEmail] = useState<string>("")
 
 
     const router = useRouter()
@@ -37,11 +38,11 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
         resolver : zodResolver(SignUpSchema)
     })
 
-    const RequestOtpForm = useForm<RequestOtpForm>({
+    const requestOtpForm = useForm<RequestOtpForm>({
         resolver : zodResolver(RequestOtpSchema)
     })
 
-    const VarifyOtpForm = useForm<VarifyOtpForm>({
+    const varifyOtpForm = useForm<VarifyOtpForm>({
         resolver : zodResolver(VarifyOtpSchema)
     })
 
@@ -61,8 +62,15 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
     }
 
     const OnVarifyOtp = (form : VarifyOtpForm) => {
+        console.log("On VarifyOtp")
         console.log(form)
     }
+
+    useEffect(() => {
+        if(!open) {
+            setSignUpStep("REQUEST");
+        }
+    }, [open])
 
     return(
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,60 +130,130 @@ export default function AuthDialog({open, onOpenChange, showTrigger = true, icon
 
                             <TabsContent value="signup">
 
-                                {signUpStep === 'REQUEST' ? (
-                                    <Form {...RequestOtpForm}>
-                                        <form action="">
+                                {signUpStep === 'REQUEST' && (
+                                    <Form {...requestOtpForm}>
+                                        <form onSubmit={requestOtpForm.handleSubmit((form) => {
+                                            OnRequestOtp(form)
+                                            SetOtpEmail(form.email)
+                                            setSignUpStep("VERIFY")
+                                        }) }>
+                                            <CustomInput 
+                                                control={requestOtpForm.control}
+                                                path="email"
+                                                label="Email Address"
+                                                placeholder="Enter your email"
+                                            />
 
-                                        </form>
-                                    </Form>
-                                ) : (
-                                    <Form {...VarifyOtpForm}>
-                                        <form action="">
-                                            
+                                            <h1 className="text-sm mt-3">We'll send you a verification code to confirm your email.</h1>
+
+                                            <Button type="submit" style={{backgroundColor : primary_color}} className="w-full mt-3">Request OTP</Button>
+
+                                            <div className="mt-4 border-1 p-4 bg-green-100 rounded-md"  >
+                                                <span className="text-sm">Welcome bonus: Get 10 credits when you join! List your first book to earn even more.</span>
+                                            </div>
+
+                                            <h1 className="text-sm pt-4 ms-2">Join thousands of readers sharing books in our community!</h1>
                                         </form>
                                     </Form>
                                 )}
 
+                                {signUpStep === "VERIFY" && (
+                                    <Form {...varifyOtpForm}>
+                                        <form onSubmit={varifyOtpForm.handleSubmit(async (form) => {
 
-                                {/* <Form {...signUpForm}>
-                                    <form onSubmit={signUpForm.handleSubmit(OnSignUp)}>
-                                        <CustomInput 
-                                            control={signUpForm.control}
-                                            path="name"
-                                            label="Full Name"
-                                            placeholder="Enter your full name"
-                                            className="mb-4"
-                                         />
+                                            signUpForm.reset({
+                                                name : "",
+                                                email : otpEmail,
+                                                password : "",
+                                                confirmPassword : ""
+                                            })
 
-                                         <CustomInput 
-                                            control={signUpForm.control}
-                                            path="email"
-                                            label="Email"
-                                            placeholder="Enter your email"
-                                            className="mb-4"
-                                         />
+                                            OnVarifyOtp({...form})
+                                            console.log("OK submit", form);
+                                            setSignUpStep("Details")
+                                        })}>
+                                            <div className="mt-4 border-1 p-4 bg-blue-100 rounded-md"  >
+                                                <span className="text-sm">A verification code has been sent to: <h1 className="text-xl">{otpEmail}</h1></span>
+                                            </div>
 
-                                         <CustomInput 
-                                            control={signUpForm.control}
-                                            path="password"
-                                            type="password"
-                                            label="Password"
-                                            placeholder="Create a password"
-                                            className="mb-4"
-                                         />
+                                            <input type="hidden" {...varifyOtpForm.register("email")} value={otpEmail} readOnly/>
 
-                                         <CustomInput 
-                                            control={signUpForm.control}
-                                            path="confirmPassword"
-                                            type="password"
-                                            label="Confirm Password"
-                                            placeholder="Confirm your password"
-                                            className="mb-4"
-                                         />
+                                            <CustomInput 
+                                                control={varifyOtpForm.control}
+                                                path="otp"
+                                                label="Enter Verification Code"
+                                                className="mt-3"
+                                                placeholder="Enter 6-digit code"
+                                                type="number"
+                                            />
 
-                                        <Button className="w-full" style={{backgroundColor : primary_color}} type="submit">Create Account</Button>
-                                    </form>
-                                </Form> */}
+                                            <Button type="submit" style={{backgroundColor : primary_color}} className="w-full mt-3">Verify OTP</Button>
+
+                                            <Button 
+                                                type="button" 
+                                                onClick={() => {
+                                                    setSignUpStep("REQUEST")
+                                                    SetOtpEmail("")
+                                                    varifyOtpForm.reset()
+                                                }}
+                                                className="bg-white text-black border w-full mt-3  hover:bg-[oklch(0.8_0.12_65)]">Change Email</Button>
+
+                                        </form>
+                                    </Form>
+                                )
+                                } 
+
+                                {signUpStep === "Details" && (
+                                    <Form {...signUpForm}>
+                                        <form onSubmit={signUpForm.handleSubmit(OnSignUp)}>
+
+                                            <div className="mt-4 border-1 p-4 bg-green-100 rounded-md flex gap-4"  >
+                                                <Check/>
+                                                <h1 className="text-sm items-center"> Email verified! Complete your profile to finish registration.</h1>
+                                            </div>
+
+                                            
+
+                                            <CustomInput 
+                                                control={signUpForm.control}
+                                                path="email"
+                                                label="Email"
+                                                className="mb-4 mt-4"
+                                                readonly
+                                            />
+
+                                            <CustomInput 
+                                                control={signUpForm.control}
+                                                path="name"
+                                                label="Full Name"
+                                                placeholder="Enter your full name"
+                                                className="mb-4 mt-4"
+                                            />
+
+
+                                            <CustomInput 
+                                                control={signUpForm.control}
+                                                path="password"
+                                                type="password"
+                                                label="Password"
+                                                placeholder="Create a password"
+                                                className="mb-4"
+                                            />
+
+                                            <CustomInput 
+                                                control={signUpForm.control}
+                                                path="confirmPassword"
+                                                type="password"
+                                                label="Confirm Password"
+                                                placeholder="Confirm your password"
+                                                className="mb-4"
+                                            />
+
+                                            <Button className="w-full" style={{backgroundColor : primary_color}} type="submit">Create Account</Button>
+                                        </form>
+                                    </Form>
+                                )} 
+
                             </TabsContent>
                         </Tabs>
                     

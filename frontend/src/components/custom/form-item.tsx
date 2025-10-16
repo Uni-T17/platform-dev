@@ -11,9 +11,10 @@ type CustomFormProps<T extends FieldValues> = {
     type ?: React.HTMLInputTypeAttribute
     className ?: string
     placeholder ?: string
+    readonly ?: boolean
 }
 
-export default function CustomInput<T extends FieldValues> ({control, path, label, type, className, placeholder} : CustomFormProps<T>) {
+export default function CustomInput<T extends FieldValues> ({control, path, label, type, className, placeholder, readonly = false} : CustomFormProps<T>) {
     return(
         <FormField 
             control={control}
@@ -23,8 +24,13 @@ export default function CustomInput<T extends FieldValues> ({control, path, labe
                     {label && <FormLabel className="font-semibold">{label}</FormLabel>}
                     <FormControl>
                         <Input className="border focus:border-[#2B9B9B] focus-visible:border-[#2B9B9B] focus-visible:ring-0 focus-visible:ring-offset-5 focus:outline-3" 
-                        style={{backgroundColor : input_bg}} {...field} type={type || 'text'} placeholder={placeholder}  
+                        style={{backgroundColor : input_bg}} 
+                        {...field} 
+                        type={type || 'text'} 
+                        placeholder={placeholder}  
+                        readOnly={readonly}
                         onChange={(e) => {
+                            if(readonly) return;
                             if (type === 'number') {
                                 const v = e.target.value;
                                 field.onChange(v === "" ? "" : Number(v));
