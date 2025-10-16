@@ -8,13 +8,34 @@ import cookieParser from "cookie-parser";
 
 export const app = express();
 
-const corsOptions = {};
+// Add  CORS
+var whitelist = [
+  "http://example1.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+var corsOptions = {
+  origin: function (
+    origin: any,
+    callback: (err: Error | null, origin?: any) => void
+  ) {
+    // this is for mobile and
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
 app
   .use(morgan("dev"))
   .use(urlencoded({ extended: true }))
   .use(express.json())
-  // .use(cors(corsOptions))
+  .use(cors(corsOptions))
   .use(helmet())
   .use(cookieParser())
   .use(compression());
