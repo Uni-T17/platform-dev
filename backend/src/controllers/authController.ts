@@ -190,7 +190,7 @@ export const verifyOtp = [
 
 export const confirmPassword = [
   body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
-  body("name", "Invalid Name!").notEmpty().isLength({ max: 50 }),
+  body("name", "Invalid Name!").trim().notEmpty().isLength({ max: 50 }),
   body("verifiedToken", "Invalid Token!").trim().notEmpty().escape(),
   body("password", "Invalid password!")
     .trim()
