@@ -112,7 +112,7 @@ export const verifyOtp = [
     .notEmpty()
     .isLength({ min: 6, max: 6 })
     .matches("^[0-9]+$"),
-  body("rememberToken", "Invalid Token!").trim().notEmpty().escape(),
+  body("rememberToken", "Invalid Token!").trim().notEmpty(),
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
@@ -190,8 +190,12 @@ export const verifyOtp = [
 
 export const confirmPassword = [
   body("email", "Invalid Email Address!").trim().notEmpty().isEmail(),
-  body("name", "Invalid Name!").trim().notEmpty().isLength({ max: 50 }),
-  body("verifiedToken", "Invalid Token!").trim().notEmpty().escape(),
+  body("name", "Invalid Name!")
+    .trim()
+    .notEmpty()
+    .isLength({ max: 50 })
+    .escape(),
+  body("verifiedToken", "Invalid Token!").trim().notEmpty(),
   body("password", "Invalid password!")
     .trim()
     .notEmpty()
