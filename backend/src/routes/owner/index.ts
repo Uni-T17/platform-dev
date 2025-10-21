@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCurrentUserProfile } from "../../controllers/user/profile";
+import { getCurrentUserProfile } from "../../controllers/profile/profile";
 
 const ownerRoutes = Router();
 
