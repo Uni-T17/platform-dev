@@ -36,3 +36,19 @@ export const checkRefreshTokenExist = (refreshToken: string) => {
     );
   }
 };
+
+export const checkTractionHistoryExist = (transactionHistory: any) => {
+  if (!transactionHistory) {
+    throw createError(
+      "TransactionHistory is not exists!",
+      404,
+      errorCode.invalid
+    );
+  }
+};
+
+export const checkCreditsExist = (credits: any) => {
+  if (!credits) {
+    throw createError("Credits is not exists!", 404, errorCode.invalid);
+  }
+};
