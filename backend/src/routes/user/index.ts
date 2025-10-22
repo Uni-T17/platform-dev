@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { getPublicProfile } from "../../controllers/profile/profile";
 
-const ownerRoutes = Router();
+const userRoutes = Router();
 
-ownerRoutes.get("/profile/:userId", getPublicProfile);
+userRoutes.get("/profile/:userId", getPublicProfile);
 
-export default ownerRoutes;
+export default userRoutes;

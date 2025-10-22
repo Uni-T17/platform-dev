@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserById } from "../../services/authServices";
+import { getUserById, updateUser } from "../../services/authServices";
 import {
   checkCreditsExist,
   checkTractionHistoryExist,
@@ -12,7 +12,7 @@ import {
 import { getTransactionHistoryByUserId } from "../../services/transactionService";
 import { getCreditsByOwnerId } from "../../services/creditsServices";
 import { getBookCountByOwnerId } from "../../services/bookServices";
-import { param, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import { createError, errorCode } from "../../utils/error";
 
 interface CustomRequest extends Request {
@@ -57,6 +57,82 @@ export const getCurrentUserProfile = async (
     data: resData,
   });
 };
+
+export const updateOwnerProfile = [
+  body("name", "Invalid Name!").trim().notEmpty().escape(),
+  body("bio", "Invalid Bio!")
+    .customSanitizer((value) => (value === null ? undefined : value))
+    .optional()
+    .isLength({ max: 200 })
+    .escape(),
+  body("address", "Invalid Address!")
+    .customSanitizer((value) => (value === null ? undefined : value))
+    .optional()
+    .isLength({ max: 200 })
+    .escape(),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserNotExist(user);
+
+    const { name, bio, address } = req.body;
+    const userData = {
+      name,
+      bio,
+      address,
+    };
+
+    await updateUser(user!.id, userData);
+
+    res.status(200).json({
+      message: "Successfully updated Profile.",
+    });
+  },
+];
+
+export const updateContactInfo = [
+  body("phone", "Invalid Phone!")
+    .customSanitizer((value) => (value === null ? undefined : value))
+    .optional()
+    .matches(/^\+?[0-9]+$/)
+    .isLength({ min: 5, max: 15 })
+    .withMessage("Phone Number Must Be 5-12 numbers"),
+  body("address", "Invalid Address!")
+    .customSanitizer((value) => (value === null ? undefined : value))
+    .optional()
+    .isLength({ max: 200 })
+    .escape(),
+  body("preferredContact", "preferredContact is only email or phone").isIn([
+    "EMAIL",
+    "PHONE",
+  ]),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserNotExist(user);
+
+    const { address, phone, preferredContact } = req.body;
+    const userData = {
+      address,
+      phone,
+      preferredContact,
+    };
+
+    await updateUser(user!.id, userData);
+
+    res.status(200).json({
+      message: "Successfully updated Contact Info.",
+    });
+  },
+];
 
 export const getPublicProfile = [
   param("userId", "Invalid UserId")

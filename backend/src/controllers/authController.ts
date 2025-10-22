@@ -396,6 +396,7 @@ export const login = [
       errorLoginCount: 0,
       randToken: refreshToken,
       status: "ACTIVE",
+      lastLogin: new Date(),
     };
     await updateUser(user!.id, userData);
 
