@@ -10,7 +10,6 @@ import CustomSelect from "./form-select";
 import { categoryOptions, conditionOptions } from "@/lib/model/option";
 import ConditonCard from "./conditon-card";
 import CustomTextArea from "./text-area";
-import { Plus, Upload } from "lucide-react";
 import { Button } from "../ui/button";
 import ImageSaving from "./image-saving";
 import { primary_color } from "@/app/color";

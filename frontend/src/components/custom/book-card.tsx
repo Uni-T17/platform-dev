@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { use } from "react";
+import React from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardFooter,
   CardHeader,

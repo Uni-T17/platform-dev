@@ -30,7 +30,7 @@ import { input_bg, primary_color } from "@/app/color";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BASEURL } from "@/lib/url";
-import { email } from "zod";
+import { OtpRespone, VerifyRespone } from "@/lib/output/response";
 
 type AuthDialogProsps = {
   open: boolean;
