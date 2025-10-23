@@ -1,4 +1,5 @@
 import { createError, errorCode } from "./error";
+import { removeFile } from "./file";
 
 export const checkUserAlreadyExist = (user: any) => {
   if (user) {
@@ -50,5 +51,27 @@ export const checkTractionHistoryExist = (transactionHistory: any) => {
 export const checkCreditsExist = (credits: any) => {
   if (!credits) {
     throw createError("Credits is not exists!", 404, errorCode.invalid);
+  }
+};
+
+export const checkImageNotExist = (file: any) => {
+  if (!file) {
+    const error = createError("Invalid File!!!", 404, errorCode.invalid);
+    throw error;
+  }
+};
+
+export const checkUserNotExistAndRemoveImage = async (
+  user: any,
+  fileName: string
+) => {
+  if (!user) {
+    await removeFile(fileName!);
+    const error = createError(
+      "This phone number is not registered yet!",
+      401,
+      errorCode.unauthorised
+    );
+    throw error;
   }
 };

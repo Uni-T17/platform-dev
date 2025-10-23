@@ -1,6 +1,9 @@
 node_modules
 /generated/prisma
 
+/upload/images/*
+!upload/images/.gitkeep
+
 
 # Logs
 logs
