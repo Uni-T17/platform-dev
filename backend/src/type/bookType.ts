@@ -1,0 +1,26 @@
+export const CategoryValue = [
+  "NONE",
+  "OTHER",
+  "NONFICTON",
+  "TEXTBOOK",
+  "BIOGRAPHY",
+  "SCIENCE",
+  "HISTORY",
+  "ROMANCE",
+  "MYSTERY",
+  "FANTASY",
+  "SELFHELP",
+  "BUSINESS",
+  "ART",
+  "COOKING",
+  "TRAVEL",
+  "CHILDREN",
+  "YOUNG",
+  "ADULT",
+  "PHYLOSOPHY",
+  "RELIGION",
+  "HEALTH",
+  "EDUCATION",
+];
+
+export const ConditionValue = ["LIKENEW", "VERYGOOD", "GOOD", "FAIR", "POOR"];

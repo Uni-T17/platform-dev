@@ -266,7 +266,7 @@ export const confirmPassword = [
       name,
       password: hashPassword,
       randToken,
-      credits: { create: { balance: 0 } },
+      credits: { create: { balance: 10 } },
       transactionHistory: { create: {} },
     };
 

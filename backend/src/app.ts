@@ -43,6 +43,8 @@ app
   .use(cookieParser())
   .use(compression());
 
+app.use(express.static("upload/images"));
+
 app.use(routes);
 
 // if there is an error these codes will be executed (means don't stop the server will still run)
