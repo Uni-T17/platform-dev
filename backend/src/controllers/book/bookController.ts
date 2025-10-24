@@ -108,7 +108,7 @@ export const getBookDetails = [
         description: book!.description,
         image: book!.image,
         price: book!.price,
-        avaiableStatus: false,
+        avaiableStatus: book!.avaiableStatus,
       },
       bookOwner: {
         ownerId: book!.ownerId,
