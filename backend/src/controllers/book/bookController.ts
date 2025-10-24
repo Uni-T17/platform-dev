@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import {
   CategoryValue,
   ConditionValue,
@@ -8,13 +8,16 @@ import {
 import { createError, errorCode } from "../../utils/error";
 import { removeFile } from "../../utils/file";
 import {
+  checkBookNotExist,
   checkImageNotExist,
+  checkUserNotExist,
   checkUserNotExistAndRemoveImage,
 } from "../../utils/check";
 import { getUserById } from "../../services/authServices";
 import {
   createNewBook,
   getBookCountByOwnerId,
+  getBookDetailByBookId,
 } from "../../services/bookServices";
 
 interface CustomRequest extends Request {
@@ -77,5 +80,21 @@ export const ownerCreateNewBook = [
     };
 
     res.status(200).json(resData);
+  },
+];
+
+export const getBookDetail = [
+  param("bookId", "Invalid Book Id.").notEmpty().isInt({ min: 1 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { bookId } = req.params;
+    const book = await getBookDetailByBookId(Number(bookId));
+    checkBookNotExist(book);
+
+    res.status(200).json({ message: "Success", bookTitle: book?.title });
   },
 ];

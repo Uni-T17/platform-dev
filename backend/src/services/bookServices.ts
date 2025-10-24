@@ -25,3 +25,11 @@ export const createNewBook = async (bookData: CreateBookType) => {
     data,
   });
 };
+
+export const getBookDetailByBookId = async (bookId: number) => {
+  return await prisma.book.findUnique({
+    where: {
+      id: bookId,
+    },
+  });
+};

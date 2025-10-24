@@ -56,8 +56,7 @@ export const checkCreditsExist = (credits: any) => {
 
 export const checkImageNotExist = (file: any) => {
   if (!file) {
-    const error = createError("Invalid File!!!", 404, errorCode.invalid);
-    throw error;
+    throw createError("Invalid File!!!", 404, errorCode.invalid);
   }
 };
 
@@ -67,11 +66,16 @@ export const checkUserNotExistAndRemoveImage = async (
 ) => {
   if (!user) {
     await removeFile(fileName!);
-    const error = createError(
+    throw createError(
       "This phone number is not registered yet!",
       401,
       errorCode.unauthorised
     );
-    throw error;
+  }
+};
+
+export const checkBookNotExist = (book: any) => {
+  if (!book) {
+    throw createError("Book Is not existed!!!", 404, errorCode.invalid);
   }
 };
