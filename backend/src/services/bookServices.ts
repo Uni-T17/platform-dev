@@ -31,5 +31,18 @@ export const getBookDetailByBookId = async (bookId: number) => {
     where: {
       id: bookId,
     },
+    include: {
+      bookOwner: {
+        select: {
+          id: true,
+          name: true,
+          transactionHistory: {
+            select: {
+              averageRating: true,
+            },
+          },
+        },
+      },
+    },
   });
 };

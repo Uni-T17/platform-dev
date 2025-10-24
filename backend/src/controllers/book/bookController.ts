@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { body, param, validationResult } from "express-validator";
 import {
+  BookDetailsType,
+  Category,
   CategoryValue,
+  Condition,
   ConditionValue,
   CreateBookType,
 } from "../../type/bookType";
@@ -83,7 +86,7 @@ export const ownerCreateNewBook = [
   },
 ];
 
-export const getBookDetail = [
+export const getBookDetails = [
   param("bookId", "Invalid Book Id.").notEmpty().isInt({ min: 1 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
@@ -95,6 +98,25 @@ export const getBookDetail = [
     const book = await getBookDetailByBookId(Number(bookId));
     checkBookNotExist(book);
 
-    res.status(200).json({ message: "Success", bookTitle: book?.title });
+    const resData: BookDetailsType = {
+      book: {
+        title: book!.title,
+        author: book!.author,
+        isbn: book!.isbn,
+        category: book!.category as Category,
+        condition: book!.condition as Condition,
+        description: book!.description,
+        image: book!.image,
+        price: book!.price,
+        avaiableStatus: false,
+      },
+      bookOwner: {
+        ownerId: book!.ownerId,
+        ownerName: book!.bookOwner.name,
+        ownerRatings: book!.bookOwner.transactionHistory!.averageRating,
+      },
+    };
+
+    res.status(200).json({ message: "Success", resData });
   },
 ];
