@@ -23,26 +23,6 @@ interface CustomRequest extends Request {
   userId?: number;
 }
 
-// model RequestedBook{
-//   id Int @id @default(autoincrement())
-//   requestedPrice Int
-//   message String?
-//   requestedStatus RequestStatus @default(PENDING)
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   book Book @relation(fields: [bookId],references: [id])
-//    Int
-
-//   seller User @relation("AsSeller",fields: [sellerId],references: [id])
-//   sellerId Int
-
-//   buyer User @relation("AsBuyer",fields: [buyerId],references: [id])
-//   buyerId Int
-
-//   transaction Transaction?
-// }
-
 export const userRequestBook = [
   body("bookId", "Invalid Book Id")
     .exists()
@@ -135,3 +115,11 @@ export const userRequestBook = [
       .json({ message: "Successfully Requested This book!", resData });
   },
 ];
+
+export const getMyRequests = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  res.status(200).json({ message: "Success" });
+};
