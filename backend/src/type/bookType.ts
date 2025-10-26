@@ -86,5 +86,6 @@ export type BookDetailsType = {
     ownerId: number;
     ownerName: string;
     ownerRatings: number;
+    isOwner: boolean;
   };
 };

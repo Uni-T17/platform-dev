@@ -114,6 +114,7 @@ export const getBookDetails = [
         ownerId: book!.ownerId,
         ownerName: book!.bookOwner.name,
         ownerRatings: book!.bookOwner.transactionHistory!.averageRating,
+        isOwner: book!.ownerId === req.userId,
       },
     };
 
