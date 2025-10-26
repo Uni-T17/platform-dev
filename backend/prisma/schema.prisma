@@ -150,6 +150,7 @@ model Credits{
 model RequestedBook{
   id Int @id @default(autoincrement())
   requestedPrice Int
+  message String?
   requestedStatus RequestStatus @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

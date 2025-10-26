@@ -1,3 +1,4 @@
+import { BookDetailsType } from "../type/bookType";
 import { createError, errorCode } from "./error";
 import { removeFile } from "./file";
 
@@ -77,5 +78,18 @@ export const checkUserNotExistAndRemoveImage = async (
 export const checkBookNotExist = (book: any) => {
   if (!book) {
     throw createError("Book Is not existed!!!", 404, errorCode.invalid);
+  }
+};
+export const checkContactInfoExist = (buyer: any) => {
+  const address = buyer.address?.trim() || "";
+  const phone = buyer.phone?.trim() || "";
+
+  // If both missing or empty
+  if (!address && !phone) {
+    throw createError(
+      "User needs to fill contact info first!",
+      404,
+      errorCode.invalid
+    );
   }
 };

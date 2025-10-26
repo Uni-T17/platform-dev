@@ -9,3 +9,12 @@ export const getCreditsByOwnerId = async (userId: number) => {
     },
   });
 };
+
+export const updateCredits = async (creditId: number, creditData: any) => {
+  return await prisma.credits.update({
+    where: {
+      id: creditId,
+    },
+    data: creditData,
+  });
+};
