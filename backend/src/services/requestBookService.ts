@@ -22,3 +22,27 @@ export const createNewRequest = async (requestData: any) => {
     data: requestData,
   });
 };
+
+export const getAllRequestsByUserId = async (userId: number) => {
+  return await prisma.requestedBook.findMany({
+    where: {
+      buyerId: userId,
+    },
+    include: {
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      book: {
+        select: {
+          id: true,
+          title: true,
+          author: true,
+        },
+      },
+    },
+  });
+};

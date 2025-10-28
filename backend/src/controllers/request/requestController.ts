@@ -12,12 +12,14 @@ import { User } from "../../../generated/prisma";
 import {
   createNewRequest,
   findExistingRequest,
+  getAllRequestsByUserId,
 } from "../../services/requestBookService";
 import { RequestedStatus } from "../../type/statusType";
 import {
   getCreditsByOwnerId,
   updateCredits,
 } from "../../services/creditsServices";
+import { RequestType } from "../../type/requestType";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -121,5 +123,40 @@ export const getMyRequests = async (
   res: Response,
   next: NextFunction
 ) => {
-  res.status(200).json({ message: "Success" });
+  const buyer = await getUserById(req.userId!);
+  checkUserNotExist(buyer);
+
+  const requestLists = await getAllRequestsByUserId(buyer!.id);
+
+  if (!requestLists || requestLists.length === 0) {
+    return res.status(200).json({ message: "There is no requested book!" });
+  }
+
+  const myRequestLists: RequestType[] = requestLists.map((request) => {
+    return {
+      book: {
+        id: request.book.id,
+        title: request.book.title,
+        author: request.book.author,
+      },
+      requestDetail: {
+        requestId: request.id,
+        requestedAt: request.createdAt,
+        requestedStatus: request.requestedStatus.toString(),
+        requestedPrice: request.requestedPrice,
+        message: request.message ?? null,
+      },
+      seller: {
+        id: request.seller.id,
+        name: request.seller.name,
+      },
+    };
+  });
+
+  const resData = {
+    message: "Success",
+    myRequestLists,
+  };
+
+  res.status(200).json(resData);
 };
