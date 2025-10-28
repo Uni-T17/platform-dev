@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { body, param, validationResult } from "express-validator";
 import {
-  BookDetailsType,
+  BookDetailsResponseType,
+  BookResponseType,
   Category,
   CategoryValue,
   Condition,
@@ -19,9 +20,10 @@ import {
 import { getUserById } from "../../services/authServices";
 import {
   createNewBook,
-  getBookCountByOwnerId,
+  getAllBooksByUserId,
   getBookDetailByBookId,
 } from "../../services/bookServices";
+import { turnDate } from "../../utils/turnDate";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -87,7 +89,7 @@ export const ownerCreateNewBook = [
 ];
 
 export const getBookDetails = [
-  param("bookId", "Invalid Book Id.").notEmpty().isInt({ min: 1 }),
+  param("bookId", "Invalid Book Id.").trim().notEmpty().isInt({ min: 1 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
@@ -98,7 +100,7 @@ export const getBookDetails = [
     const book = await getBookDetailByBookId(Number(bookId));
     checkBookNotExist(book);
 
-    const resData: BookDetailsType = {
+    const resData: BookDetailsResponseType = {
       book: {
         title: book!.title,
         author: book!.author,
@@ -119,5 +121,53 @@ export const getBookDetails = [
     };
 
     res.status(200).json({ message: "Success", resData });
+  },
+];
+
+export const getUserBooks = [
+  param("ownerId", "Invalid Book Id.").trim().notEmpty().isInt({ min: 1 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const ownerId = Number(req.params.ownerId);
+
+    const userId = req.userId;
+
+    const owner = await getUserById(ownerId);
+    checkUserNotExist(owner);
+
+    const isOwner = userId! === ownerId;
+
+    const books = await getAllBooksByUserId(ownerId);
+
+    if (books.length === 0) {
+      res
+        .status(200)
+        .json({ message: "Book List is empty!", isOwner, totalBook: 0 });
+    }
+
+    const booksList: BookResponseType[] = books.map((book) => {
+      const date = book.createdAt;
+      const dateInString = turnDate(date);
+      return {
+        title: book.title,
+        author: book.author,
+        category: book.category as Category,
+        condition: book.condition as Condition,
+        image: book.image,
+        price: book.price,
+        avaiableStatus: book.avaiableStatus,
+        createdAt: dateInString,
+      };
+    });
+
+    const totalBook = booksList.length;
+
+    const resData = { message: "Success", isOwner, totalBook, booksList };
+
+    res.status(200).json(resData);
   },
 ];

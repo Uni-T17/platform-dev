@@ -1,4 +1,3 @@
-import { BookDetailsType } from "../type/bookType";
 import { createError, errorCode } from "./error";
 import { removeFile } from "./file";
 

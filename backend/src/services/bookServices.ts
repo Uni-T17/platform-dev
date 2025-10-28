@@ -46,3 +46,17 @@ export const getBookDetailByBookId = async (bookId: number) => {
     },
   });
 };
+
+export const getAllBooksByUserId = async (ownerId: number) => {
+  return await prisma.book.findMany({
+    where: {
+      ownerId: ownerId,
+    },
+    include: {
+      bookOwner: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
