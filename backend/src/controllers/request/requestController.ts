@@ -220,3 +220,11 @@ export const getRequestsForMyBook = async (
 
   res.status(200).json(resData);
 };
+
+export const approveOrRejectRequest = [
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      messsage: "Success",
+    });
+  },
+];
