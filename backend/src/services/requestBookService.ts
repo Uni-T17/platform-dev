@@ -23,7 +23,7 @@ export const createNewRequest = async (requestData: any) => {
   });
 };
 
-export const getAllRequestsByUserId = async (userId: number) => {
+export const getAllRequestsByBuyerId = async (userId: number) => {
   return await prisma.requestedBook.findMany({
     where: {
       buyerId: userId,
@@ -36,6 +36,24 @@ export const getAllRequestsByUserId = async (userId: number) => {
           email: true,
         },
       },
+      book: {
+        select: {
+          id: true,
+          title: true,
+          author: true,
+        },
+      },
+    },
+  });
+};
+
+export const getAllRequestsBySellerId = async (sellerId: number) => {
+  return await prisma.requestedBook.findMany({
+    where: {
+      sellerId: sellerId,
+    },
+    include: {
+      buyer: true,
       book: {
         select: {
           id: true,

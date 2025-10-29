@@ -8,13 +8,23 @@ export type RequestType = {
   };
   requestDetail: {
     requestId: number;
-    requestedAt: Date;
+    requestedAt: string;
     requestedStatus: string;
     requestedPrice: number;
     message?: string | null;
   };
-  seller: {
+  seller?: {
     id: number;
     name: string;
+  };
+  buyer?: {
+    id: number;
+    name: string;
+    contactInfo: {
+      email: string;
+      phone: string | null;
+      address: string | null;
+      preferredContact: string;
+    };
   };
 };

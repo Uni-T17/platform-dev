@@ -12,7 +12,8 @@ import { User } from "../../../generated/prisma";
 import {
   createNewRequest,
   findExistingRequest,
-  getAllRequestsByUserId,
+  getAllRequestsByBuyerId,
+  getAllRequestsBySellerId,
 } from "../../services/requestBookService";
 import { RequestedStatus } from "../../type/statusType";
 import {
@@ -20,6 +21,7 @@ import {
   updateCredits,
 } from "../../services/creditsServices";
 import { RequestType } from "../../type/requestType";
+import { turnDate } from "../../utils/turnDate";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -126,13 +128,15 @@ export const getMyRequests = async (
   const buyer = await getUserById(req.userId!);
   checkUserNotExist(buyer);
 
-  const requestLists = await getAllRequestsByUserId(buyer!.id);
+  const requestLists = await getAllRequestsByBuyerId(buyer!.id);
 
   if (!requestLists || requestLists.length === 0) {
     return res.status(200).json({ message: "There is no requested book!" });
   }
 
   const myRequestLists: RequestType[] = requestLists.map((request) => {
+    const date = request.createdAt;
+    const requestedDate = turnDate(date);
     return {
       book: {
         id: request.book.id,
@@ -141,7 +145,7 @@ export const getMyRequests = async (
       },
       requestDetail: {
         requestId: request.id,
-        requestedAt: request.createdAt,
+        requestedAt: requestedDate,
         requestedStatus: request.requestedStatus.toString(),
         requestedPrice: request.requestedPrice,
         message: request.message ?? null,
@@ -156,6 +160,62 @@ export const getMyRequests = async (
   const resData = {
     message: "Success",
     myRequestLists,
+  };
+
+  res.status(200).json(resData);
+};
+
+export const getRequestsForMyBook = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const seller = await getUserById(req.userId!);
+  checkUserNotExist(seller);
+
+  const requestLists = await getAllRequestsBySellerId(seller!.id);
+
+  if (!requestLists || requestLists.length === 0) {
+    return res.status(200).json({ message: "There is no requested book!" });
+  }
+
+  const myRequestLists: RequestType[] = requestLists.map((request) => {
+    const date = request.createdAt;
+    const requestedDate = turnDate(date);
+    const buyer = request.buyer;
+    const book = request.book;
+    return {
+      book: {
+        id: buyer.id,
+        title: book.title,
+        author: book.author,
+      },
+      requestDetail: {
+        requestId: request.id,
+        requestedAt: requestedDate,
+        requestedStatus: request.requestedStatus.toString(),
+        requestedPrice: request.requestedPrice,
+        message: request.message ?? null,
+      },
+      buyer: {
+        id: buyer.id,
+        name: buyer.name,
+        contactInfo: {
+          email: buyer.email,
+          phone: buyer.phone,
+          address: buyer.address,
+          preferredContact: buyer.preferredContact,
+        },
+      },
+    };
+  });
+
+  const totalRequests = requestLists.length;
+
+  const resData = {
+    message: "Success",
+    myRequestLists,
+    totalRequests,
   };
 
   res.status(200).json(resData);

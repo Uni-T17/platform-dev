@@ -5,6 +5,7 @@ import {
   updateOwnerProfile,
 } from "../../controllers/profile/profile";
 import bookRoutes from "./book";
+import requestRoutes from "./request";
 
 const ownerRoutes = Router();
 
@@ -13,5 +14,7 @@ ownerRoutes.put("/update-profile", updateOwnerProfile);
 ownerRoutes.put("/update-contact-info", updateContactInfo);
 
 ownerRoutes.use("/books", bookRoutes);
+
+ownerRoutes.use("/requests", requestRoutes);
 
 export default ownerRoutes;
