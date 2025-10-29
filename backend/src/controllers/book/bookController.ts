@@ -100,6 +100,8 @@ export const getBookDetails = [
     const book = await getBookDetailByBookId(Number(bookId));
     checkBookNotExist(book);
 
+    const createdDate = turnDate(book!.createdAt);
+
     const resData: BookDetailsResponseType = {
       book: {
         title: book!.title,
@@ -111,6 +113,7 @@ export const getBookDetails = [
         image: book!.image,
         price: book!.price,
         avaiableStatus: book!.avaiableStatus,
+        createdAt: createdDate,
       },
       bookOwner: {
         ownerId: book!.ownerId,

@@ -14,6 +14,7 @@ import { getCreditsByOwnerId } from "../../services/creditsServices";
 import { getBookCountByOwnerId } from "../../services/bookServices";
 import { body, param, validationResult } from "express-validator";
 import { createError, errorCode } from "../../utils/error";
+import { turnDate } from "../../utils/turnDate";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -32,13 +33,14 @@ export const getCurrentUserProfile = async (
   const credits = await getCreditsByOwnerId(user!.id);
   checkCreditsExist(credits);
   const bookListed = await getBookCountByOwnerId(user!.id);
+  const createdDate = turnDate(user!.createdAt);
 
   const resData: CurrentUserProfileType = {
     profileCard: {
       name: user!.name,
       email: user!.email,
       rating: transactionHistory!.averageRating,
-      memberSince: user!.createdAt,
+      memberSince: createdDate,
       bio: user!.bio,
       liveIn: user!.address,
     },
