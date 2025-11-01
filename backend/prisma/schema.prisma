@@ -186,8 +186,16 @@ model Transaction{
   buyer User @relation("buyerTransaction",fields: [buyerId],references: [id])
   buyerId Int
 
-  transactionHistory TransactionHistory @relation(fields: [transactionHistoryId],references: [id],onDelete: Cascade,onUpdate: Cascade)
-  transactionHistoryId Int
+  // transactionHistory TransactionHistory @relation(fields: [transactionHistoryId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+  // transactionHistoryId Int
+
+  sellerHistory TransactionHistory @relation("SellerHistory",fields: [sellerHistoryId],references: [id])
+  sellerHistoryId Int
+
+  buyerHistory TransactionHistory @relation("BuyerHistory",fields: [buyerHistoryId],references: [id])
+  buyerHistoryId Int
+
+
   review Review?
 
 }
@@ -198,7 +206,8 @@ model TransactionHistory{
   totalIncome Int @default(0)
   totalOutcome Int @default(0)
   averageRating Int @default(0) @db.SmallInt
-  transactions Transaction[]
+  sellerTransactions Transaction[] @relation("SellerHistory")
+  buyerTransactions Transaction[] @relation("BuyerHistory")
 
   owner User @relation(fields: [ownerId],references: [id])
   ownerId Int @unique

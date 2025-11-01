@@ -60,3 +60,12 @@ export const getAllBooksByUserId = async (ownerId: number) => {
     },
   });
 };
+
+export const updateBookByBookId = async (bookId: number, updateData: any) => {
+  return await prisma.book.update({
+    where: {
+      id: bookId,
+    },
+    data: updateData,
+  });
+};

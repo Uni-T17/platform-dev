@@ -66,3 +66,40 @@ export const getAllRequestsBySellerId = async (sellerId: number) => {
     },
   });
 };
+
+export const updateRequest = async (requestId: number, updateData: any) => {
+  return await prisma.requestedBook.update({
+    where: {
+      id: requestId,
+    },
+    data: updateData,
+  });
+};
+
+export const findExistingRequestById = async (requestId: number) => {
+  return await prisma.requestedBook.findUnique({
+    where: {
+      id: requestId,
+    },
+  });
+};
+
+export const rejectOtherRequestsForBook = async (
+  bookId: number,
+  excludeRequestId: number
+) => {
+  return await prisma.requestedBook.updateMany({
+    where: {
+      bookId: bookId,
+      id: {
+        not: excludeRequestId,
+      },
+      requestedStatus: "PENDING",
+    },
+    data: {
+      requestedStatus: "REJECT",
+      message:
+        "Another request has been approved for this book. Please Delete this request to get refund credits!",
+    },
+  });
+};

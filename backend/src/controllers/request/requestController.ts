@@ -5,15 +5,22 @@ import { getUserById } from "../../services/authServices";
 import {
   checkBookNotExist,
   checkContactInfoExist,
+  checkModelNotExist,
   checkUserNotExist,
 } from "../../utils/check";
-import { getBookDetailByBookId } from "../../services/bookServices";
+import {
+  getBookDetailByBookId,
+  updateBookByBookId,
+} from "../../services/bookServices";
 import { User } from "../../../generated/prisma";
 import {
   createNewRequest,
   findExistingRequest,
+  findExistingRequestById,
   getAllRequestsByBuyerId,
   getAllRequestsBySellerId,
+  rejectOtherRequestsForBook,
+  updateRequest,
 } from "../../services/requestBookService";
 import { RequestedStatus } from "../../type/statusType";
 import {
@@ -22,6 +29,10 @@ import {
 } from "../../services/creditsServices";
 import { RequestType } from "../../type/requestType";
 import { turnDate } from "../../utils/turnDate";
+import { create } from "domain";
+import { createNewTransaction } from "../../services/transactionService";
+import { updateTransactionHistoryByUserId } from "../../services/transactionHistoryService";
+import { TransactionType } from "../../type/transactionType";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -57,7 +68,7 @@ export const userRequestBook = [
     if (credits!.balance < Number(requestedPrice)) {
       return next(
         createError(
-          "You don't have enough balance to buy request this book!",
+          "You don't have enough balance to request this book!",
           400,
           errorCode.invalid
         )
@@ -105,13 +116,9 @@ export const userRequestBook = [
     };
 
     const newRequest = await createNewRequest(requestData);
-    const creditData = {
-      balance: credits!.balance - newRequest!.requestedPrice,
-    };
-    const newCredits = await updateCredits(credits!.id, creditData);
+
     const resData = {
       requestedId: newRequest.id,
-      creditsBalance: newCredits.balance,
     };
 
     res
@@ -186,7 +193,7 @@ export const getRequestsForMyBook = async (
     const book = request.book;
     return {
       book: {
-        id: buyer.id,
+        id: book.id,
         title: book.title,
         author: book.author,
       },
@@ -222,9 +229,117 @@ export const getRequestsForMyBook = async (
 };
 
 export const approveOrRejectRequest = [
+  body("requestId", "Invalid Request Id").trim().notEmpty().isInt({ min: 1 }),
+  body("avaiableStatus", "Invalid Status!")
+    .trim()
+    .notEmpty()
+    .isIn(["APPROVE", "REJECT"])
+    .withMessage("Should Only APPROVE OR REJECT"),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
-    res.status(200).json({
-      messsage: "Success",
-    });
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+    const avaiableStatus: string = req.body.avaiableStatus;
+    const requestId: number = Number(req.body.requestId);
+
+    const seller = await getUserById(req.userId!);
+    checkUserNotExist(seller);
+
+    const request = await findExistingRequestById(requestId);
+    checkModelNotExist(request, "Request");
+
+    // Allow only pending request
+    if (request!.requestedStatus !== "PENDING") {
+      return next(
+        createError(
+          "This request has been already processed!",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    // If not owner not allow to approve/reject
+    if (request!.sellerId !== seller!.id) {
+      return next(
+        createError(
+          "You are not authorized to approve/reject this request!",
+          403,
+          errorCode.unauthorised
+        )
+      );
+    }
+
+    const buyerCredits = await getCreditsByOwnerId(request!.buyerId);
+    // check credits balance is enough to buy the book
+
+    // Approve
+    if (avaiableStatus === "APPROVE") {
+      // If balance not enough, not allow to approve
+      if (buyerCredits!.balance < request!.requestedPrice) {
+        return next(
+          createError(
+            "The buyer does not have enough balance to buy this book!",
+            400,
+            errorCode.invalid
+          )
+        );
+      }
+
+      // Update book avaiable status to false
+      await updateBookByBookId(request!.bookId, { avaiableStatus: false });
+      const transactionData: TransactionType = {
+        price: request!.requestedPrice,
+        requestedBookId: request!.id,
+        bookId: request!.bookId,
+        sellerId: request!.sellerId,
+        buyerId: request!.buyerId,
+        sellerHistoryId: seller!.id,
+        buyerHistoryId: request!.buyerId,
+      };
+      const transaction = await createNewTransaction(transactionData);
+
+      // Deduct buyer credits
+      await updateCredits(buyerCredits!.id, {
+        balance: { decrement: transaction!.price },
+      });
+
+      // Add seller credits
+      const sellerCredits = await getCreditsByOwnerId(seller!.id);
+      await updateCredits(sellerCredits!.id, {
+        balance: { increment: transaction!.price },
+      });
+
+      // Update buyer transaction histories
+      await updateTransactionHistoryByUserId(request!.buyerId, {
+        transactionCount: { increment: 1 },
+        totalIncome: { increment: transaction!.price },
+      });
+      // Update seller transaction history
+      await updateTransactionHistoryByUserId(request!.sellerId, {
+        transactionCount: { increment: 1 },
+        totalOutcome: { increment: transaction!.price },
+      });
+
+      // Approve the request
+      await updateRequest(requestId, { requestedStatus: "APPROVE" });
+      // Reject other requests for the same book
+      await rejectOtherRequestsForBook(request!.bookId, requestId);
+    }
+
+    // Reject
+    if (avaiableStatus === "REJECT") {
+      // Handle rejection logic
+      await updateRequest(requestId, {
+        requestedStatus: "REJECT",
+      });
+    }
+
+    const resData = {
+      message: "Successfully processed the request!",
+      requestId,
+    };
+    res.status(200).json(resData);
   },
 ];

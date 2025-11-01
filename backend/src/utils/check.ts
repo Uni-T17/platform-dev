@@ -92,3 +92,9 @@ export const checkContactInfoExist = (buyer: any) => {
     );
   }
 };
+
+export const checkModelNotExist = (model: any, name: string) => {
+  if (!model) {
+    throw createError(`${name} is not exists!`, 404, errorCode.invalid);
+  }
+};

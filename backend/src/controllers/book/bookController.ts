@@ -150,6 +150,7 @@ export const getUserBooks = [
       res
         .status(200)
         .json({ message: "Book List is empty!", isOwner, totalBook: 0 });
+      return;
     }
 
     const booksList: BookResponseType[] = books.map((book) => {

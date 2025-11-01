@@ -9,7 +9,7 @@ import {
   CurrentUserProfileType,
   PublicProfileType,
 } from "../../type/profileType";
-import { getTransactionHistoryByUserId } from "../../services/transactionService";
+import { getTransactionHistoryByUserId } from "../../services/transactionHistoryService";
 import { getCreditsByOwnerId } from "../../services/creditsServices";
 import { getBookCountByOwnerId } from "../../services/bookServices";
 import { body, param, validationResult } from "express-validator";
