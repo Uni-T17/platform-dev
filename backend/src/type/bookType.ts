@@ -81,6 +81,7 @@ export type BookDetailsResponseType = {
 };
 
 export type BookResponseType = {
+  id: number;
   title: string;
   author: string;
   isbn?: string | null;

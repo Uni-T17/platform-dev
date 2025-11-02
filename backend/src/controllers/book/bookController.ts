@@ -104,6 +104,7 @@ export const getBookDetails = [
 
     const resData: BookDetailsResponseType = {
       book: {
+        id: book!.id,
         title: book!.title,
         author: book!.author,
         isbn: book!.isbn,
@@ -157,6 +158,7 @@ export const getUserBooks = [
       const date = book.createdAt;
       const dateInString = turnDate(date);
       return {
+        id: book.id,
         title: book.title,
         author: book.author,
         category: book.category as Category,

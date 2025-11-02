@@ -26,7 +26,6 @@ export const getAllRequestsByBuyerId = async (userId: number) => {
   return await prisma.requestedBook.findMany({
     where: {
       buyerId: userId,
-      requestedStatus: "PENDING",
     },
     include: {
       seller: {
