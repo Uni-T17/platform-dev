@@ -1,7 +1,6 @@
-import { PrismaClient } from "../../generated/prisma";
-import { CreateBookType } from "../type/bookType";
+import { prisma } from ".";
 
-const prisma = new PrismaClient();
+import { CreateBookType } from "../type/bookType";
 
 export const getBookCountByOwnerId = async (ownerId: number) => {
   return await prisma.book.count({

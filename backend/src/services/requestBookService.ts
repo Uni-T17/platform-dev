@@ -1,7 +1,6 @@
-import { PrismaClient } from "../../generated/prisma";
-import { RequestedStatus } from "../type/statusType";
+import { prisma } from ".";
 
-const prisma = new PrismaClient();
+import { RequestedStatus } from "../type/statusType";
 
 export const findExistingRequest = async (
   bookId: number,

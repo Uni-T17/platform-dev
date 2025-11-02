@@ -1,6 +1,4 @@
-import { PrismaClient } from "../../generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from ".";
 
 export const getTransactionHistoryByUserId = async (ownerId: number) => {
   return await prisma.transactionHistory.findUnique({

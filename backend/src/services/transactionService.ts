@@ -1,8 +1,5 @@
-import { connect } from "http2";
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from ".";
 import { TransactionType } from "../type/transactionType";
-
-const prisma = new PrismaClient();
 
 export const createNewTransaction = async (
   transactionData: TransactionType
