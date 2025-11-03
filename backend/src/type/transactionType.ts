@@ -36,10 +36,22 @@ export type CompleteTransactionType = {
   transactionId: number;
   bookName: string;
   authorName: string;
+  buyerId: number;
   givenTo: string;
   price: number;
+  sellerId: number;
   recievedFrom: string;
   completedAt: string;
   isOwner: boolean;
   review: string | null;
+  rating: number | null;
+};
+
+export type ReviewDataType = {
+  transactionId: number;
+  rating: number;
+  description?: string;
+  reviewToId: number;
+  reviewById: number;
+  transactionHistoryId: number;
 };

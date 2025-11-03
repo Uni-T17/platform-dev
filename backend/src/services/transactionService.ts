@@ -17,3 +17,14 @@ export const createNewTransaction = async (
     data,
   });
 };
+
+export const getTransactionById = async (transactionId: number) => {
+  return await prisma.transaction.findUnique({
+    where: {
+      id: transactionId,
+    },
+    include: {
+      review: true,
+    },
+  });
+};

@@ -34,19 +34,20 @@ export const getAllTransactions = async (
       transactionId: transaction.id,
       bookName: transaction.book.title,
       authorName: transaction.book.author,
+      buyerId: transaction.buyer.id,
       givenTo: transaction.buyer.name,
       price: transaction.price,
+      sellerId: transaction.seller.id,
       recievedFrom: transaction.seller.name,
       completedAt: completedAt,
       isOwner: transaction.sellerId === userId,
       review: transaction.review ? transaction.review.description : null,
+      rating: transaction.review ? transaction.review.rating : null,
     };
   });
 
-  res
-    .status(200)
-    .json({
-      message: "All transactions retrieved successfully",
-      data: resData,
-    });
+  res.status(200).json({
+    message: "All transactions retrieved successfully",
+    data: resData,
+  });
 };
