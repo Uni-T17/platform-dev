@@ -1,13 +1,12 @@
 import { Router } from "express";
 import {
   approveOrRejectRequest,
-  getMyRequests,
-  getRequestsForMyBook,
+  getIncomingRequests,
 } from "../../controllers/request/requestController";
 
 const requestRoutes = Router();
 
-requestRoutes.get("/all-requests-my-books", getRequestsForMyBook);
+requestRoutes.get("/incoming-requests", getIncomingRequests);
 requestRoutes.put("/update-request", approveOrRejectRequest);
 
 export default requestRoutes;

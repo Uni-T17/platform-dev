@@ -172,7 +172,7 @@ export const getMyRequests = async (
   res.status(200).json(resData);
 };
 
-export const getRequestsForMyBook = async (
+export const getIncomingRequests = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
