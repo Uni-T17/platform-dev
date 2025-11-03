@@ -39,7 +39,9 @@ export const getCurrentUserProfile = async (
     profileCard: {
       name: user!.name,
       email: user!.email,
-      rating: transactionHistory!.averageRating,
+      rating:
+        transactionHistory!.averageRating /
+          transactionHistory!.transactionCount || 0,
       memberSince: createdDate,
       bio: user!.bio,
       liveIn: user!.address,

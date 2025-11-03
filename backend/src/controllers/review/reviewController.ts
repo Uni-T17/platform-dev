@@ -5,6 +5,7 @@ import { getTransactionById } from "../../services/transactionService";
 import { createError, errorCode } from "../../utils/error";
 import { buyerCreateReview } from "../../services/reviewServices";
 import { ReviewDataType } from "../../type/transactionType";
+import { updateTransactionHistoryByUserId } from "../../services/transactionHistoryService";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -68,6 +69,11 @@ export const buyerReviewSeller = [
       transactionHistoryId: transaction!.sellerHistoryId,
     };
     const review = await buyerCreateReview(reviewData);
+
+    // Update seller's transaction history with new average rating and review count
+    await updateTransactionHistoryByUserId(transaction!.sellerHistoryId, {
+      averageRating: { increment: rating },
+    });
     const reviewId = review.id;
 
     res.status(201).json({ message: "Review created successfully", reviewId });
