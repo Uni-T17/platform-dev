@@ -31,3 +31,15 @@ export type TransactionType = {
   sellerHistoryId: number;
   buyerHistoryId: number;
 };
+
+export type CompleteTransactionType = {
+  transactionId: number;
+  bookName: string;
+  authorName: string;
+  givenTo: string;
+  price: number;
+  recievedFrom: string;
+  completedAt: string;
+  isOwner: boolean;
+  review: string | null;
+};
