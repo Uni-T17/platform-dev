@@ -68,3 +68,27 @@ export const updateBookByBookId = async (bookId: number, updateData: any) => {
     data: updateData,
   });
 };
+
+export const getAllBooks = async (cursor: number | null, limit: number) => {
+  return await prisma.book.findMany({
+    skip: cursor ? cursor + 1 : 0,
+    take: limit,
+    cursor: cursor ? { id: cursor } : undefined,
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      bookOwner: {
+        select: {
+          id: true,
+          name: true,
+          transactionHistory: {
+            select: {
+              averageRating: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
