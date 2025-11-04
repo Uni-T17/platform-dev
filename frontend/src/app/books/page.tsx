@@ -3,18 +3,15 @@ import SearchBar from "@/components/custom/serach-bar";
 import WelcomeBox from "@/components/custom/welcome-box";
 import { Category, Condition } from "@/lib/model/book";
 
-
 export default function BrowseBook() {
-    return(
-        
+  return (
     <div className="p-4">
       <WelcomeBox />
 
-      
-        <SearchBar />
+      <SearchBar />
 
       <div className="flex justify-center gap-8">
-          <BookCard
+        <BookCard
           book={{
             id: "1",
             image:
@@ -27,8 +24,10 @@ export default function BrowseBook() {
             condition: Condition.Good,
             general: "Classic literature about love and tragedy.",
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction,
+            ownerName: "Alice Johnson",
+            ownerId: "42",
+            status: true,
           }}
         />
 
@@ -45,8 +44,10 @@ export default function BrowseBook() {
             condition: Condition.Good,
             general: "Classic literature about love and tragedy.",
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction,
+            ownerName: "Alice Johnson",
+            ownerId: "42",
+            status: true,
           }}
         />
 
@@ -63,12 +64,13 @@ export default function BrowseBook() {
             condition: Condition.Good,
             general: "Classic literature about love and tragedy.",
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction,
+            ownerName: "Alice Johnson",
+            status: true,
+            ownerId: "42",
           }}
         />
       </div>
-      
     </div>
-    )
+  );
 }

@@ -31,8 +31,9 @@ export const BookSchema = z.object({
   description: z.string(),
   condition: z.enum(Condition),
   rating: z.number().min(1).max(5),
-  category: z.string(),
-  name: z.string().optional(),
+  category: z.enum(Category),
+  ownerName: z.string(), // display name of the lister
+  ownerId: z.string(),
   general: z.string().optional(),
   status: z.boolean().optional(),
 });
@@ -42,8 +43,7 @@ export type BookType = z.infer<typeof BookSchema>;
 type Props = { book: BookType };
 
 function BookCard({ book }: Props) {
-
-  const {isAuth, authOpen , openAuth} = useAuthStore();
+  const { isAuth, authOpen, openAuth } = useAuthStore();
 
   const result = BookSchema.safeParse(book);
   const router = useRouter();
@@ -97,31 +97,31 @@ function BookCard({ book }: Props) {
 
           {/* Rating row */}
           {(props.rating ?? 0) > 0 && (
-            <div className="flex items-center gap-2 text-slate-700">
+            <div className="flex items-center gap-2 text-slate-700 flex-wrap">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-500" />
               <span className="font-semibold text-[15px]">
                 {props.rating.toFixed(1)}
               </span>
-              {props.name && (
-                <span className="text-[15px] text-gray-600">
-                  • by {props.name}
-                </span>
+
+              {props.ownerName && (
+                <div className="flex items-center gap-1 text-[15px] text-gray-600">
+                  <span>• by</span>
+                  <Link
+                    href={`/profile/${props.ownerId}`}
+                    className="text-teal-700 font-medium hover:underline"
+                  >
+                    {props.ownerName}
+                  </Link>
+                </div>
               )}
             </div>
           )}
         </div>
       </CardContent>
 
-
-
       {/* Button footer */}
       <CardFooter className="mt-auto flex justify-between items-center px-4 pb-4">
-        <Link href={isAuth ? `/books/${book.id}` : '#'} onClick={(e) => {
-          if(!isAuth){
-            e.preventDefault()
-            openAuth()
-          }
-        }} className="w-full">
+        <Link href={`/books/${book.id}`} className="w-full">
           <Button
             className=" hover:bg-[#1A7A7A] w-full text-white pb-2 px-4 rounded-lg"
             style={{ backgroundColor: primary_color }}
