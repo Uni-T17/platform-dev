@@ -14,3 +14,27 @@ export const buyerCreateReview = async (reviewData: ReviewDataType) => {
     data,
   });
 };
+
+export const getReviewsByUserId = async (userId: number) => {
+  return await prisma.review.findMany({
+    where: {
+      reviewToId: userId,
+    },
+    include: {
+      transaction: {
+        include: {
+          book: {
+            select: {
+              title: true,
+            },
+          },
+          buyer: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
