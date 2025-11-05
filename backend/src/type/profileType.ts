@@ -3,7 +3,7 @@ export type CurrentUserProfileType = {
     name: string;
     email: string;
     rating: number;
-    memberSince: Date;
+    memberSince: string;
     bio?: string | null;
     liveIn?: string | null;
   };

@@ -1,11 +1,30 @@
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from ".";
+import { TransactionType } from "../type/transactionType";
 
-const prisma = new PrismaClient();
+export const createNewTransaction = async (
+  transactionData: TransactionType
+) => {
+  let data: any = {
+    price: transactionData.price,
+    requestedBookId: transactionData.requestedBookId,
+    bookId: transactionData.bookId,
+    sellerId: transactionData.sellerId,
+    buyerId: transactionData.buyerId,
+    sellerHistoryId: transactionData.sellerHistoryId,
+    buyerHistoryId: transactionData.buyerHistoryId,
+  };
+  return await prisma.transaction.create({
+    data,
+  });
+};
 
-export const getTransactionHistoryByUserId = async (ownerId: number) => {
-  return await prisma.transactionHistory.findUnique({
+export const getTransactionById = async (transactionId: number) => {
+  return await prisma.transaction.findUnique({
     where: {
-      ownerId,
+      id: transactionId,
+    },
+    include: {
+      review: true,
     },
   });
 };

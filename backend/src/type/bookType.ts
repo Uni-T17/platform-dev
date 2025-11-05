@@ -70,22 +70,26 @@ export type CreateBookType = {
   ownerId: number;
 };
 
-export type BookDetailsType = {
-  book: {
-    title: string;
-    author: string;
-    isbn?: string | null;
-    category: Category;
-    condition: Condition;
-    description?: string | null;
-    image: string;
-    price: number;
-    avaiableStatus: boolean;
-  };
+export type BookDetailsResponseType = {
+  book: BookResponseType;
   bookOwner: {
     ownerId: number;
     ownerName: string;
     ownerRatings: number;
     isOwner: boolean;
   };
+};
+
+export type BookResponseType = {
+  id: number;
+  title: string;
+  author: string;
+  isbn?: string | null;
+  category: Category;
+  condition: Condition;
+  description?: string | null;
+  image: string;
+  price: number;
+  avaiableStatus: boolean;
+  createdAt?: String;
 };

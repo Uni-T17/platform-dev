@@ -1,4 +1,3 @@
-import { BookDetailsType } from "../type/bookType";
 import { createError, errorCode } from "./error";
 import { removeFile } from "./file";
 
@@ -91,5 +90,11 @@ export const checkContactInfoExist = (buyer: any) => {
       404,
       errorCode.invalid
     );
+  }
+};
+
+export const checkModelNotExist = (model: any, name: string) => {
+  if (!model) {
+    throw createError(`${name} is not exists!`, 404, errorCode.invalid);
   }
 };

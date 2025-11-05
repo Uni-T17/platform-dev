@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { getMyRequests } from "../../controllers/request/requestController";
+import {
+  getMyRequests,
+  userUpdateRequest,
+} from "../../controllers/request/requestController";
 
 const requestRoutes = Router();
 
 requestRoutes.get("/all-requests", getMyRequests);
+requestRoutes.put("/update-request", userUpdateRequest);
 
 export default requestRoutes;

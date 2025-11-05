@@ -17,4 +17,5 @@ export const errorCode = {
   accountFreeze: "Error_AccountFreeze",
   unauthorised: "Error_Unauthorised",
   maintenance: "Error_Maintenance",
+  invalidRequest: "Error_InvalidRequest",
 };
