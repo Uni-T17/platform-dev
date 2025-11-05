@@ -129,3 +129,42 @@ export const getAllReviews = [
     res.status(200).json(resData);
   },
 ];
+
+export const getMyReviews = [
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserNotExist(user);
+    const reviews = await getReviewsByUserId(user!.id);
+    checkModelNotExist(reviews, "Reviews");
+
+    if (reviews.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No reviews found for this user", reviews: [] });
+    }
+
+    const reviewsList: ReviewType[] = reviews.map((review) => {
+      const date = review.createdAt;
+      const createdAt = turnDate(date);
+      return {
+        id: review.id,
+        rating: review.rating,
+        description: review.description,
+        bookName: review.transaction.book.title,
+        reviewBy: review.transaction.buyer.name,
+        createdAt: createdAt,
+      };
+    });
+
+    const resData = {
+      message: "Reviews retrieved successfully",
+      reviews: reviewsList,
+    };
+    res.status(200).json(resData);
+  },
+];
