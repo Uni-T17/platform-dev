@@ -9,7 +9,10 @@ import {
   CurrentUserProfileType,
   PublicProfileType,
 } from "../../type/profileType";
-import { getTransactionHistoryByUserId } from "../../services/transactionHistoryService";
+import {
+  getTransactionHistoryAndReviewsByUserId,
+  getTransactionHistoryByUserId,
+} from "../../services/transactionHistoryService";
 import { getCreditsByOwnerId } from "../../services/creditsServices";
 import { getBookCountByOwnerId } from "../../services/bookServices";
 import { body, param, validationResult } from "express-validator";
@@ -152,7 +155,9 @@ export const getPublicProfile = [
     const userId = Number(req.params.userId);
     const user = await getUserById(userId!);
     checkUserNotExist(user);
-    const transactionHistory = await getTransactionHistoryByUserId(user!.id);
+    const transactionHistory = await getTransactionHistoryAndReviewsByUserId(
+      user!.id
+    );
     checkTractionHistoryExist(transactionHistory);
     const bookListed = await getBookCountByOwnerId(user!.id);
 
@@ -171,6 +176,19 @@ export const getPublicProfile = [
         address: user!.address,
         prefferedContact: user!.preferredContact,
       },
+      totalReviews: transactionHistory!.sellerTransactions
+        ? transactionHistory!.sellerTransactions.length
+        : 0,
+      reviews: transactionHistory!.sellerTransactions
+        ? transactionHistory!.sellerTransactions.map((transaction) => ({
+            id: transaction.review ? transaction.review.id : 0,
+            rating: transaction.review ? transaction.review.rating : 0,
+            description: transaction.review
+              ? transaction.review.description
+              : null,
+            reviewBy: transaction.buyer ? transaction.buyer.name : "Unknown",
+          }))
+        : [],
     };
 
     res.status(200).json({

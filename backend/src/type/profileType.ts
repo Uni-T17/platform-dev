@@ -32,4 +32,13 @@ export type PublicProfileType = {
     address?: string | null;
     prefferedContact: string;
   };
+  totalReviews?: number;
+  reviews?: publicReviewType[] | null;
+};
+
+type publicReviewType = {
+  id: number;
+  rating: number;
+  description: string | null;
+  reviewBy: string | null;
 };
