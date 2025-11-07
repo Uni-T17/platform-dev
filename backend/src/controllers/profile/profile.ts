@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserById, updateUser } from "../../services/authServices";
+import {
+  getUserById,
+  getUserDetailsById,
+  updateUser,
+} from "../../services/authServices";
 import {
   checkCreditsExist,
   checkTractionHistoryExist,
@@ -153,13 +157,12 @@ export const getPublicProfile = [
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
     const userId = Number(req.params.userId);
-    const user = await getUserById(userId!);
+    const user = await getUserDetailsById(userId!);
     checkUserNotExist(user);
     const transactionHistory = await getTransactionHistoryAndReviewsByUserId(
       user!.id
     );
     checkTractionHistoryExist(transactionHistory);
-    const bookListed = await getBookCountByOwnerId(user!.id);
 
     const resData: PublicProfileType = {
       profileCard: {
@@ -169,7 +172,20 @@ export const getPublicProfile = [
         bio: user!.bio,
         liveIn: user!.address,
       },
-      bookListed: bookListed,
+      bookListed: user!.book ? user!.book.length : 0,
+      books: user!.book
+        ? user!.book.map((book) => ({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            category: book.category,
+            condition: book.condition,
+            description: book.description,
+            image: book.image,
+            price: book.price,
+          }))
+        : [],
       exchanges: transactionHistory!.transactionCount,
       contactInfo: {
         phone: user!.phone,

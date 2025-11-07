@@ -1,3 +1,5 @@
+import { BookDetailsResponseType } from "./bookType";
+
 export type CurrentUserProfileType = {
   profileCard: {
     name: string;
@@ -25,7 +27,8 @@ export type PublicProfileType = {
     bio?: string | null;
     memberSince: Date;
   };
-  bookListed: number;
+  bookListed?: number;
+  books: any;
   exchanges: number;
   contactInfo: {
     phone?: string | null;
