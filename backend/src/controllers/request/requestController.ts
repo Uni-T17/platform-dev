@@ -176,12 +176,13 @@ export const getMyRequests = async (
 export const getIncomingRequests = async (
   req: CustomRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
+  status: RequestedStatus
 ) => {
   const seller = await getUserById(req.userId!);
   checkUserNotExist(seller);
 
-  const requestLists = await getAllRequestsBySellerId(seller!.id);
+  const requestLists = await getAllRequestsBySellerId(seller!.id, status);
 
   if (!requestLists || requestLists.length === 0) {
     return res.status(200).json({ message: "There is no requested book!" });
