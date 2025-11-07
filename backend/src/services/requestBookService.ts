@@ -22,10 +22,14 @@ export const createNewRequest = async (requestData: any) => {
   });
 };
 
-export const getAllRequestsByBuyerId = async (userId: number) => {
+export const getAllRequestsByBuyerId = async (
+  userId: number,
+  status: RequestedStatus
+) => {
   return await prisma.requestedBook.findMany({
     where: {
       buyerId: userId,
+      requestedStatus: status,
     },
     include: {
       seller: {

@@ -130,12 +130,13 @@ export const userRequestBook = [
 export const getMyRequests = async (
   req: CustomRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
+  status: RequestedStatus
 ) => {
   const buyer = await getUserById(req.userId!);
   checkUserNotExist(buyer);
 
-  const requestLists = await getAllRequestsByBuyerId(buyer!.id);
+  const requestLists = await getAllRequestsByBuyerId(buyer!.id, status);
 
   if (!requestLists || requestLists.length === 0) {
     return res.status(200).json({ message: "There is no requested book!" });
