@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteRequest,
   getMyRequests,
   userRequestAgain,
   userUpdateRequest,
@@ -19,5 +20,7 @@ requestRoutes.get("/reject", (req, res, next) =>
 );
 requestRoutes.put("/update-request", userUpdateRequest);
 requestRoutes.put("/request-again", userRequestAgain);
+
+requestRoutes.delete("/delete-request/:requestId", deleteRequest);
 
 export default requestRoutes;

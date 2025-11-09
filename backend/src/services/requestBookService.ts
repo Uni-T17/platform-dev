@@ -108,3 +108,11 @@ export const rejectOtherRequestsForBook = async (
     },
   });
 };
+
+export const deleteRequestById = async (requestId: number) => {
+  return await prisma.requestedBook.delete({
+    where: {
+      id: requestId,
+    },
+  });
+};

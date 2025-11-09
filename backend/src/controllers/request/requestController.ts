@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import { createError, errorCode } from "../../utils/error";
 import { getUserById } from "../../services/authServices";
 import {
@@ -15,6 +15,7 @@ import {
 import { User } from "../../../generated/prisma";
 import {
   createNewRequest,
+  deleteRequestById,
   findExistingRequest,
   findExistingRequestById,
   getAllRequestsByBuyerId,
@@ -510,6 +511,53 @@ export const userRequestAgain = [
 
     const resData = {
       message: "Successfully Updated the request!",
+      requestId: request!.id,
+    };
+
+    res.status(200).json(resData);
+  },
+];
+
+export const deleteRequest = [
+  param("requestId", "Invalid Request Id").notEmpty().toInt().isInt({ min: 1 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const buyer = await getUserById(req.userId!);
+    checkUserNotExist(buyer);
+
+    const { requestId } = req.params;
+
+    const request = await findExistingRequestById(Number(requestId));
+    checkModelNotExist(request, "Request");
+
+    if (request!.buyerId !== buyer!.id) {
+      return next(
+        createError(
+          "You are not authorized to delete this request!",
+          403,
+          errorCode.unauthorised
+        )
+      );
+    }
+    // Allow only reject or pending request
+    if (request!.requestedStatus === "APPROVE") {
+      return next(
+        createError(
+          "You can not delete an approved request!",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    await deleteRequestById(request!.id);
+
+    const resData = {
+      message: "Successfully Deleted the request!",
       requestId: request!.id,
     };
 
