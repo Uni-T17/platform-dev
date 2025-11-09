@@ -428,3 +428,91 @@ export const userUpdateRequest = [
     res.status(200).json(resData);
   },
 ];
+
+export const userRequestAgain = [
+  body("requestId", "Invalid Request Id!!")
+    .notEmpty()
+    .toInt()
+    .isInt({ min: 1 }),
+  body("message", "Invalid message").optional().isLength({ max: 200 }).escape(),
+  body("requestedPrice", "Invalid Request Price")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("requestedPrice must be >= 1"),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const buyer = await getUserById(req.userId!);
+    checkUserNotExist(buyer);
+
+    const { requestId, message, requestedPrice } = req.body;
+
+    const request = await findExistingRequestById(Number(requestId));
+    checkModelNotExist(request, "Request");
+
+    if (request!.buyerId !== buyer!.id) {
+      return next(
+        createError(
+          "You are not authorized to update this request!",
+          403,
+          errorCode.unauthorised
+        )
+      );
+    }
+    // Allow only reject request
+    if (request!.requestedStatus !== "REJECT") {
+      return next(
+        createError(
+          "This request has already been processed!",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    // check book avaiable status
+    const book = await getBookDetailByBookId(request!.bookId);
+    checkBookNotExist(book);
+
+    if (!book!.avaiableStatus) {
+      return next(
+        createError(
+          "This book is unavaiable to request!Already sold out.",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    const updateData: any = {
+      requestedStatus: "PENDING",
+    };
+    if (message) {
+      updateData.message = message;
+    }
+    if (requestedPrice) {
+      const credits = await getCreditsByOwnerId(buyer!.id);
+      if (credits!.balance < Number(requestedPrice)) {
+        return next(
+          createError(
+            "You don't have enough balance to request this book!",
+            400,
+            errorCode.invalid
+          )
+        );
+      }
+      updateData.requestedPrice = Number(requestedPrice);
+    }
+    await updateRequest(request!.id, updateData);
+
+    const resData = {
+      message: "Successfully Updated the request!",
+      requestId: request!.id,
+    };
+
+    res.status(200).json(resData);
+  },
+];
