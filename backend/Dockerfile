@@ -2,13 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Faster layer caching
+# 1) install deps
 COPY package*.json ./
 RUN npm ci
 
-# Copy source and build
+# 2) copy src and build
 COPY . .
-# Generate Prisma client using dev deps present in this stage
 RUN npx prisma generate
 RUN npm run build
 
@@ -17,20 +16,18 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install only production deps
+# 3) install only prod deps, but make sure prisma/ exists for postinstall
 COPY package*.json ./
+COPY prisma ./prisma
 RUN npm ci --omit=dev
+# (postinstall runs here and can now see prisma/schema.prisma)
 
-# Copy compiled app and prisma schema/migrations
+# 4) copy compiled app
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/prisma ./prisma
 
-# Generate Prisma client in the final image (matches runtime node_modules)
+# 5) (optional, safe) regenerate to match runtime node_modules
 RUN npx prisma generate
 
-# Railway will set PORT; no need to EXPOSE, but harmless if you keep it
-# EXPOSE 3000
-
-# Apply DB migrations first, then start the server
-# Adjust the entrypoint to your actual built file (commonly dist/src/index.js)
-CMD sh -c "npx prisma migrate deploy && node dist/src/index.js"
+# 6) start: run migrations then boot
+#    adjust path if your entry is dist/index.js (not dist/src/index.js)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/index.js"]
