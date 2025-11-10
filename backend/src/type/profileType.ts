@@ -1,6 +1,7 @@
 import { BookDetailsResponseType } from "./bookType";
 
 export type CurrentUserProfileType = {
+  userId: number;
   profileCard: {
     name: string;
     email: string;

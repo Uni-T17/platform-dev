@@ -43,6 +43,7 @@ export const getCurrentUserProfile = async (
   const createdDate = turnDate(user!.createdAt);
 
   const resData: CurrentUserProfileType = {
+    userId: user!.id,
     profileCard: {
       name: user!.name,
       email: user!.email,

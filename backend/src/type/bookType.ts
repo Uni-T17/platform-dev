@@ -88,8 +88,26 @@ export type BookResponseType = {
   category: Category;
   condition: Condition;
   description?: string | null;
+  rating: number | null;
+  ownerName: string | null;
+  ownerId: number | null;
   image: string;
   price: number;
   avaiableStatus: boolean;
+  general: string | null;
   createdAt?: String;
 };
+
+// id: string;
+//     title: string;
+//     author: string;
+//     credits: number;
+//     description: string;
+//     condition: Condition;
+//     rating: number;
+//     category: Category;
+//     ownerName: string;
+//     ownerId: string;
+//     image?: string | undefined;
+//     general?: string | undefined;
+//     status?: boolean | undefined;
