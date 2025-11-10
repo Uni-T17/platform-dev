@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import BookCard from "@/components/custom/book-card";
 import SearchBar from "@/components/custom/serach-bar";
@@ -6,17 +6,14 @@ import WelcomeBox from "@/components/custom/welcome-box";
 import { Category, Condition } from "@/lib/model/book";
 
 export default function Home() {
-
-
   return (
     <div className="p-4">
       <WelcomeBox />
 
-      
-        <SearchBar />
+      <SearchBar />
 
       <div className="flex justify-center gap-8">
-          <BookCard
+        <BookCard
           book={{
             id: "1",
             image:
@@ -26,11 +23,13 @@ export default function Home() {
             credits: 3,
             description:
               "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
+            condition: Condition.Good, // now valid
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction, // now valid
+            ownerName: "Alice Johnson",
+            ownerId: "42",
+            general: "Classic literature about love and tragedy.",
+            status: true,
           }}
         />
 
@@ -44,11 +43,13 @@ export default function Home() {
             credits: 3,
             description:
               "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
+            condition: Condition.Good, // now valid
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction, // now valid
+            ownerName: "Alice Johnson",
+            ownerId: "42",
+            general: "Classic literature about love and tragedy.",
+            status: true,
           }}
         />
 
@@ -62,15 +63,16 @@ export default function Home() {
             credits: 3,
             description:
               "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
+            condition: Condition.Good, // now valid
             rating: 4.5,
-            category: Category.Fiction.toString(),
-            name: "Alice Johnson",
+            category: Category.Fiction, // now valid
+            ownerName: "Alice Johnson",
+            ownerId: "42",
+            general: "Classic literature about love and tragedy.",
+            status: true,
           }}
         />
       </div>
-      
     </div>
   );
 }
