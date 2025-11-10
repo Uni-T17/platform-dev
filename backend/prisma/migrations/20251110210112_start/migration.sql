@@ -7,6 +7,12 @@ CREATE TYPE "Condition" AS ENUM ('LIKENEW', 'VERYGOOD', 'GOOD', 'FAIR', 'POOR');
 -- CreateEnum
 CREATE TYPE "RequestStatus" AS ENUM ('PENDING', 'REJECT', 'APPROVE');
 
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE', 'FREEZE');
+
+-- CreateEnum
+CREATE TYPE "PreferredContact" AS ENUM ('PHONE', 'EMAIL');
+
 -- CreateTable
 CREATE TABLE "Otp" (
     "id" SERIAL NOT NULL,
@@ -32,6 +38,11 @@ CREATE TABLE "User" (
     "phone" VARCHAR(15),
     "address" VARCHAR(225),
     "bio" VARCHAR(225),
+    "preferredContact" "PreferredContact" NOT NULL DEFAULT 'EMAIL',
+    "lastLogin" TIMESTAMP(3),
+    "errorLoginCount" SMALLINT NOT NULL DEFAULT 0,
+    "randToken" TEXT NOT NULL,
+    "status" "Status" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -72,6 +83,7 @@ CREATE TABLE "Credits" (
 CREATE TABLE "RequestedBook" (
     "id" SERIAL NOT NULL,
     "requestedPrice" INTEGER NOT NULL,
+    "message" TEXT,
     "requestedStatus" "RequestStatus" NOT NULL DEFAULT 'PENDING',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
