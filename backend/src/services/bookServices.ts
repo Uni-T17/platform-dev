@@ -82,11 +82,10 @@ export const updateBookByBookId = async (bookId: number, updateData: any) => {
 
 export const getAllBooks = async (cursor: number | null, limit: number) => {
   return await prisma.book.findMany({
-    skip: cursor ? cursor + 1 : 0,
-    take: limit,
-    cursor: cursor ? { id: cursor } : undefined,
+    take: limit + 1,
+    ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
     include: {
       bookOwner: {
