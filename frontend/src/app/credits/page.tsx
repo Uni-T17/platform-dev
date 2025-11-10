@@ -21,6 +21,9 @@ import { UserProfileDetails } from "@/lib/output/response";
 import DeleteRequest from "@/components/custom/delete-request";
 
 export default function CreditPage() {
+
+  
+
   const router = useRouter();
   const [info, setInfo] = useState<UserProfileDetails>();
 
