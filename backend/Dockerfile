@@ -26,4 +26,4 @@ COPY --from=build /app/dist ./dist
 RUN npx prisma generate
 
 # 5) Start (adjust entry if it's dist/index.js)
-CMD ["sh","-c","npx prisma migrate deploy && node dist/src/index.js"]
+CMD ["sh","-c","npx prisma migrate deploy && node dist/index.js"]
