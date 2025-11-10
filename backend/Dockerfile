@@ -2,14 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy only package files first for caching
+# 1) Install deps WITHOUT running postinstall
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
-# Copy the rest of the app (including prisma/)
+# 2) Copy source (includes prisma/) and build
 COPY . .
-
-# Generate Prisma client and build the app
 RUN npx prisma generate
 RUN npm run build
 
@@ -18,18 +16,14 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy prisma schema for runtime usage
-COPY prisma ./prisma
-
-# Copy package files and install only prod dependencies
+# 3) Install only prod deps WITHOUT scripts
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 
-# Copy built app from previous stage
+# 4) Bring prisma schema + built code, then generate client
+COPY prisma ./prisma
 COPY --from=build /app/dist ./dist
-
-# Generate Prisma client again for production
 RUN npx prisma generate
 
-EXPOSE 8080
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/index.js"]
+# 5) Start (adjust entry if it's dist/index.js)
+CMD ["sh","-c","npx prisma migrate deploy && node dist/src/index.js"]
