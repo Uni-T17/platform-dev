@@ -43,3 +43,14 @@ export type ContactInfo = {
     address : string
     prefferedContact : string
 }
+
+export type CreditResponse = {
+    message : string
+    data : {
+        balance : number
+        totalEarned : number
+        totalSpent : number
+        exchanges : number
+        rating : number
+    }
+}

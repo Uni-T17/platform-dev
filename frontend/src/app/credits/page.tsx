@@ -7,11 +7,13 @@ import { Card } from "@/components/ui/card";
 import { useCreditState } from "@/lib/model/credit-store";
 import { RefreshCcw, Wallet } from "lucide-react";
 import { useEffect } from "react";
-import { useStore } from "zustand";
 import { request } from "@/lib/base-client"
+import { CreditResponse } from "@/lib/output/response";
+import { IconType } from "@/lib/icon";
 
 export default function CreditPage() {
 
+    const {credit, setCredit} = useCreditState();
 
     useEffect(() => {
          
@@ -24,12 +26,16 @@ export default function CreditPage() {
                     credentials : "include"
                 })
 
-                console.log(await response.json())
+                const data = await response.json() as CreditResponse
 
+                setCredit(data.data.balance)
+                
             }catch(error) {
 
             }
         }
+
+        credit()
 
     })
 
@@ -47,13 +53,27 @@ export default function CreditPage() {
                     <div className="flex gap-3  ms-4">
                         <Wallet/> <span>Current Balance</span>
                     </div>
-                    <div>
-
+                    <div className="ms-4">
+                        <h1 className="text-4xl font-bold mb-4">{credit} Credits</h1>
+                        <span>Ready to exchange for new books</span>
                     </div>
                 </Card>
 
                 <CreditsUsage />
                 <TipCredits />
             </section>
+    )
+}
+
+function CreditsSecondCard({title, credits, icon} : {title : string, credits : number, icon : IconType}) {
+    return(
+        <Card>
+            <div>
+                <div>
+                    <h1>{title}</h1>
+                    
+                </div>
+            </div>
+        </Card>
     )
 }
