@@ -47,8 +47,8 @@ export const ownerCreateNewBook = [
     .isLength({ max: 100 })
     .escape()
     .withMessage("Author Name can't be coding words!"),
-  body("category", "Invalid category").isIn(CategoryValue),
-  body("condition", "Invalid Condition").isIn(ConditionValue),
+  body("category", "Invalid category").toUpperCase().isIn(CategoryValue),
+  body("condition", "Invalid Condition").toUpperCase().isIn(ConditionValue),
   body("description", "Invalid description")
     .optional()
     .isLength({ max: 100 })
