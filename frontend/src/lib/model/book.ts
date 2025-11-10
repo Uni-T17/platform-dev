@@ -14,18 +14,19 @@ export type Book = {
   ownerName: string;
 };
 
+
 export enum Category {
+  None = "NONE",
   Other = "OTHER",
-  Fiction = "FICTION",
-  NonFiction = "NON_FICTION",
-  TextBook = "TEXT_BOOK",
+  NonFiction = "NONFICTION",
+  TextBook = "TEXTBOOK",
   Biography = "BIOGRAPHY",
   Science = "SCIENCE",
   History = "HISTORY",
   Romance = "ROMANCE",
   Mystery = "MYSTERY",
   Fantasy = "FANTASY",
-  SelfHelp = "SELF_HELP",
+  SelfHelp = "SELFHELP",
   Business = "BUSINESS",
   Art = "ART",
   Cooking = "COOKING",
@@ -40,8 +41,8 @@ export enum Category {
 }
 
 export enum Condition {
-  LikeNew = "LIKE_NEW",
-  VeryGood = "VERY_GOOD",
+  LikeNew = "LIKENEW",
+  VeryGood = "VERYGOOD",
   Good = "GOOD",
   Fair = "FAIR",
   Poor = "POOR",
