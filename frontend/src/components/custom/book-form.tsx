@@ -31,9 +31,30 @@ export default function BookDetails() {
     const onSave = async () => {
         console.log(form.getValues())
 
+        const values = form.getValues();
+
+        const fd = new FormData();
+        fd.append("title", values.title);
+        fd.append("author", values.author);
+        fd.append("isbn", values.isbn);
+        fd.append("category", values.category);
+        fd.append("condition", values.condition);
+        fd.append("description", values.description);
+        fd.append("price", String(values.price));
+        fd.append("avaiableStatus", "true");
+        
+        const bookVal = values.book as unknown as File | File[] | null | undefined;
+        if (bookVal instanceof File) {
+            fd.append("book", bookVal);
+        } else if (Array.isArray(bookVal) && bookVal.length > 0) {
+            fd.append("book", bookVal[0]);
+        }
+
+
         const response = await request("api/v1/owner/books/create-new-book", {
                 ...POST_CONFIG,
-                credentials : "include"
+                credentials : "include",
+                body : fd
         }) 
 
             console.log(await response.json())
