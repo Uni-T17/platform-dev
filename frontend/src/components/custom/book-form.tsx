@@ -52,7 +52,7 @@ export default function BookDetails() {
 
 
         const response = await request("api/v1/owner/books/create-new-book", {
-                ...POST_CONFIG,
+                method : "POST",
                 credentials : "include",
                 body : fd
         }) 
