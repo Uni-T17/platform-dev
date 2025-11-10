@@ -44,37 +44,43 @@ export default function ContactInfoCard() {
   if (!isEditing) {
     const { phone, address, preferred } = form.getValues();
     return (
-      <Card className="p-4 text-sm font-medium max-w-3xl justify-center mx-auto ">
-        <div className="flex items-center justify-between  ">
-          <h2 className="text-medium font-medium flex items-center gap-2">
+      <div className="">
+        <div className="flex items-center justify-between pb-2">
+          <h2 className="text-sm font-medium flex items-center gap-2">
             {" "}
             <PersonIcon />
-            Contact Information
+            Contact Information <span className="text-rose-600">*</span>
           </h2>
-          <Button variant="outline" onClick={() => setIsEditing(true)}>
+          <Button
+            className="text-sm font-medium border-none hover:border-gray-500"
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+          >
             <PencilIcon />
-            Edit
+            Edit Contact Info
           </Button>
         </div>
 
-        <div className="space-y-3 text-slate-800 ">
-          <div className="flex items-center gap-3   ">
-            <span className="flex items-center gap-2">
-              <PhoneIcon size={16} strokeWidth={1.75} /> {phone}
-            </span>
+        <Card className="p-4 text-sm font-medium max-w-3xl justify-center mx-auto ">
+          <div className="space-y-3 text-slate-800 ">
+            <div className="flex items-center gap-3   ">
+              <span className="flex items-center gap-2">
+                <PhoneIcon size={16} strokeWidth={1.75} /> {phone}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-2">
+                <MapPinIcon size={16} strokeWidth={1.75} /> {address}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-2">
+                <StarIcon /> Preferred: {preferred}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2">
-              <MapPinIcon size={16} strokeWidth={1.75} /> {address}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2">
-              <StarIcon /> Preferred: {preferred}
-            </span>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     );
   }
 
