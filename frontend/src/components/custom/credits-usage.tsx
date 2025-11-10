@@ -3,8 +3,8 @@ import React from "react";
 
 function CreditsUsage() {
   return (
-    <section className=" max-w-3xl border rounded-lg pl-8 pt-4  mt-10 mb-10 shadow-sm items-center mx-auto ">
-      <h1 className="mb-6 text-md font-medium ml-0.5">How Credits Work</h1>
+    <section className=" max-w-5xl border rounded-lg pl-8 pt-4  mt-10 mb-10 shadow-sm items-center mx-auto ">
+      <h1 className="mb-6 text-md font-medium ml-0.5">How Credits Work?</h1>
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2 mb-4">
         <div className=" sm:*:w-[320px] md:w-[500px]">

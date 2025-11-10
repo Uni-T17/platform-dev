@@ -9,6 +9,9 @@ export default function BrowseBook() {
       <WelcomeBox />
 
       <SearchBar />
+      <span className="text-lg font-semibold ml-35 mt-6 mb-4 inline-block">
+        Available Books
+      </span>
 
       <div className="flex justify-center gap-8">
         <BookCard

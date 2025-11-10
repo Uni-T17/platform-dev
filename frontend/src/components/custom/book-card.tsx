@@ -121,14 +121,19 @@ function BookCard({ book }: Props) {
 
       {/* Button footer */}
       <CardFooter className="mt-auto flex justify-between items-center px-4 pb-4">
-        <Link href={`/books/${book.id}`} className="w-full">
-          <Button
-            className=" hover:bg-[#1A7A7A] w-full text-white pb-2 px-4 rounded-lg"
-            style={{ backgroundColor: primary_color }}
-          >
-            View Details
-          </Button>
-        </Link>
+        <Button
+          onClick={() => {
+            if (isAuth) {
+              router.push(`/books/${book.id}`);
+            } else {
+              openAuth();
+            }
+          }}
+          className="hover:bg-[#1A7A7A] w-full text-white pb-2 px-4 rounded-lg"
+          style={{ backgroundColor: primary_color }}
+        >
+          View Details
+        </Button>
       </CardFooter>
     </Card>
   );

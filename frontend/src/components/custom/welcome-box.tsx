@@ -6,7 +6,13 @@ import { is } from "zod/v4/locales";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { primary_color } from "@/app/color";
-import { Book, CreditCard, PersonStandingIcon, PlusIcon, User } from "lucide-react";
+import {
+  Book,
+  CreditCard,
+  PersonStandingIcon,
+  PlusIcon,
+  User,
+} from "lucide-react";
 
 function WelcomeBox() {
   const { isAuth } = useAuthStore();
@@ -43,7 +49,7 @@ function WelcomeBox() {
             list one of your own to earn credits.
           </p>
           <div className="justify-center items-center flex gap-4 mt-4">
-            <Link href={""}>
+            <Link href={"/books/new"}>
               <Button
                 className=" hover:bg-[#1A7A7A]  text-white pb-2 px-2 rounded-lg"
                 style={{ backgroundColor: primary_color }}
@@ -52,7 +58,7 @@ function WelcomeBox() {
                 <PlusIcon /> List a Book
               </Button>
             </Link>
-            <Link href={""}>
+            <Link href={"/credits"}>
               <Button className="bg-white hover:bg-[#F1FBF9] text-black pb-2 px-2 rounded-lg border border-gray-300">
                 {" "}
                 <CreditCard /> My Credits{" "}

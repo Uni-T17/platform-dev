@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star, Wallet } from "lucide-react";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useAuthStore } from "@/lib/model/auth-store"; // 👈 add
+import { useAuthStore } from "@/lib/model/auth-store";
+import ExchangedInformation from "@/components/custom/exchanged-information";
+import RequestForm from "@/components/custom/request-form";
 
 export default function BookDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { isAuth, openAuth } = useAuthStore(); // 👈 use auth
+  const { isAuth, openAuth } = useAuthStore();
 
   const book = Books.find((b) => b.id === id);
   if (!book) return <p className="text-center mt-10">Book not found</p>;
@@ -33,7 +35,7 @@ export default function BookDetailPage() {
       </div>
 
       <div className="grid place-items-center">
-        <div className="grid md:grid-cols-2 gap-4 lg:gap-10">
+        <div className="grid md:grid-cols-2 gap-2 lg:gap-4">
           {/* LEFT */}
           <div className="w-sm  flex justify-center">
             <AspectRatio
@@ -49,7 +51,7 @@ export default function BookDetailPage() {
           </div>
 
           {/* RIGHT */}
-          <div className=" w-full md:w-1/2 space-y-5">
+          <div className=" w-full  md:w-1/2 space-y-5">
             <div>
               <h1 className="text-md md:text-md font-bold text-gray-900">
                 {book.title}
@@ -90,51 +92,7 @@ export default function BookDetailPage() {
               <p className="text-gray-700 text-md">{book.description}</p>
             </div>
 
-            {/* Exchange box */}
-            <div className="border rounded-2xl p-5 shadow-sm bg-white space-y-3 w-full sm:w-[360px] md:w-[400px] lg:w-[420px]">
-              <div className="flex justify-between items-center">
-                <p className="flex gap-2 items-center font-medium text-gray-800 text-md">
-                  <Wallet size={20} /> Exchange Information
-                </p>
-              </div>
-              <div className="items-center flex justify-between mb-4">
-                <p className="text-sm font-medium">Credit Cost : </p>
-                <p className="items-center rounded-md px-2 py-0.5 text-[13px] font-medium border-gray-300 bg-gray-100  text-gray-800">
-                  {book.credits} credits
-                </p>
-              </div>
-
-              {!isAuth ? (
-                <>
-                  <div className="rounded-2xl border text-sm border-indigo-200 bg-indigo-50 px-2 py-2 text-center text-indigo-800 font-normal">
-                    Sign in to request this book and start exchanging!
-                  </div>
-                  <Button
-                    onClick={openAuth}
-                    className="w-full bg-[#0F8B8D] hover:bg-[#0d7476] text-white font-semibold rounded-xl"
-                  >
-                    Sign In to Exchange
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div className="flex justify-between items-center font-medium text-sm text-gray-700">
-                    <span className="font-medium">Your Credits:</span>
-                    <span className="inline-flex items-center rounded-md bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[13px] font-medium">
-                      {myCredits} credits
-                    </span>
-                  </div>
-                  <Button
-                    disabled={myCredits < book.credits}
-                    className="w-full bg-[#1A7A7A] hover:bg-[#166666] text-white font-semibold rounded-xl disabled:opacity-70"
-                  >
-                    {myCredits < book.credits
-                      ? "Not Enough Credits"
-                      : "Request This Book"}
-                  </Button>
-                </>
-              )}
-            </div>
+            <ExchangedInformation />
           </div>
         </div>
       </div>
