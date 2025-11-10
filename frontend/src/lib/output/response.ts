@@ -54,3 +54,24 @@ export type CreditResponse = {
         rating : number
     }
 }
+
+
+export type ApiBook = {
+  id: number
+  title: string
+  author: string
+  category: string          
+  condition: string         
+  image: string             
+  price: number             
+  avaiableStatus: boolean
+  createdAt: string
+}
+
+export type ApiResponse = {
+  message: string
+  isAunthenticated: boolean
+  hasNextPage: boolean
+  newCursor: number | null
+  booksList: ApiBook[]
+}

@@ -1,9 +1,34 @@
+"use client"
+
 import BookCard from "@/components/custom/book-card";
 import SearchBar from "@/components/custom/serach-bar";
 import WelcomeBox from "@/components/custom/welcome-box";
 import { Category, Condition } from "@/lib/model/book";
+import { useEffect, useState } from "react";
+import { request } from "@/lib/base-client"
+import { ApiBook, ApiResponse } from "@/lib/output/response";
 
 export default function BrowseBook() {
+
+  const [books, setBooks] = useState<ApiBook[]>([])
+
+  useEffect(() => {
+
+    const load = async () => {
+      const response = await request("api/v1/user/books/get-all-books", {
+        method : "GET",
+        credentials : "include"
+      })
+
+      const data = await response.json() as ApiResponse
+
+      setBooks(data.booksList)
+    }
+
+    load()
+
+  }, [])
+
   return (
     <div className="p-4">
       <WelcomeBox />
@@ -14,6 +39,19 @@ export default function BrowseBook() {
       </span>
 
       <div className="flex justify-center gap-8">
+
+        {/* {books.map((book) => (
+          <BookCard book={{
+            id : book.id.toString(),
+            image : `localhost:8080/${book.image}`,
+            title : book.title,
+            author : book.author,
+            credits : book.price,
+            
+
+          }} />
+        ))} */}
+
         <BookCard
           book={{
             id: "1",
