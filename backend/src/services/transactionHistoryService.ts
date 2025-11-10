@@ -8,6 +8,26 @@ export const getTransactionHistoryByUserId = async (ownerId: number) => {
   });
 };
 
+export const getTransactionHistoryAndReviewsByUserId = async (
+  ownerId: number
+) => {
+  return await prisma.transactionHistory.findUnique({
+    where: {
+      ownerId,
+    },
+    include: {
+      sellerTransactions: {
+        include: {
+          review: {
+            select: { id: true, rating: true, description: true },
+          },
+          buyer: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
+};
+
 export const getAllTransactionHistoryByUserId = async (ownerId: number) => {
   return await prisma.transactionHistory.findUnique({
     where: {
