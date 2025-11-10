@@ -9,8 +9,8 @@ export const BookDetailsSchema = z.object({
     category : z.enum(Category),
     condition : z.enum(Condition),
     description : z.string(),
-    photo : z.file(),
-    credit : z.number()
+    price : z.number(),
+    book : z.file(),
 })
 
 export type BookDetailsType = z.infer<typeof BookDetailsSchema>

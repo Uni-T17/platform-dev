@@ -39,7 +39,18 @@ export type ProfileCard = {
 };
 
 export type ContactInfo = {
-  phone: string;
-  address: string;
-  prefferedContact: string;
-};
+    phone : string
+    address : string
+    prefferedContact : string
+}
+
+export type CreditResponse = {
+    message : string
+    data : {
+        balance : number
+        totalEarned : number
+        totalSpent : number
+        exchanges : number
+        rating : number
+    }
+}
