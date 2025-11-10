@@ -63,7 +63,17 @@ export const getAllBooksByUserId = async (ownerId: number) => {
       ownerId: ownerId,
     },
     include: {
-      bookOwner: true,
+      bookOwner: {
+        select: {
+          id: true,
+          name: true,
+          transactionHistory: {
+            select: {
+              averageRating: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
