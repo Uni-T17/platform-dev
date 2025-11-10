@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserById, updateUser } from "../../services/authServices";
+import {
+  getUserById,
+  getUserDetailsById,
+  updateUser,
+} from "../../services/authServices";
 import {
   checkCreditsExist,
   checkTractionHistoryExist,
@@ -9,7 +13,10 @@ import {
   CurrentUserProfileType,
   PublicProfileType,
 } from "../../type/profileType";
-import { getTransactionHistoryByUserId } from "../../services/transactionHistoryService";
+import {
+  getTransactionHistoryAndReviewsByUserId,
+  getTransactionHistoryByUserId,
+} from "../../services/transactionHistoryService";
 import { getCreditsByOwnerId } from "../../services/creditsServices";
 import { getBookCountByOwnerId } from "../../services/bookServices";
 import { body, param, validationResult } from "express-validator";
@@ -150,11 +157,12 @@ export const getPublicProfile = [
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
     const userId = Number(req.params.userId);
-    const user = await getUserById(userId!);
+    const user = await getUserDetailsById(userId!);
     checkUserNotExist(user);
-    const transactionHistory = await getTransactionHistoryByUserId(user!.id);
+    const transactionHistory = await getTransactionHistoryAndReviewsByUserId(
+      user!.id
+    );
     checkTractionHistoryExist(transactionHistory);
-    const bookListed = await getBookCountByOwnerId(user!.id);
 
     const resData: PublicProfileType = {
       profileCard: {
@@ -164,13 +172,39 @@ export const getPublicProfile = [
         bio: user!.bio,
         liveIn: user!.address,
       },
-      bookListed: bookListed,
+      bookListed: user!.book ? user!.book.length : 0,
+      books: user!.book
+        ? user!.book.map((book) => ({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            category: book.category,
+            condition: book.condition,
+            description: book.description,
+            image: book.image,
+            price: book.price,
+          }))
+        : [],
       exchanges: transactionHistory!.transactionCount,
       contactInfo: {
         phone: user!.phone,
         address: user!.address,
         prefferedContact: user!.preferredContact,
       },
+      totalReviews: transactionHistory!.sellerTransactions
+        ? transactionHistory!.sellerTransactions.length
+        : 0,
+      reviews: transactionHistory!.sellerTransactions
+        ? transactionHistory!.sellerTransactions.map((transaction) => ({
+            id: transaction.review ? transaction.review.id : 0,
+            rating: transaction.review ? transaction.review.rating : 0,
+            description: transaction.review
+              ? transaction.review.description
+              : null,
+            reviewBy: transaction.buyer ? transaction.buyer.name : "Unknown",
+          }))
+        : [],
     };
 
     res.status(200).json({

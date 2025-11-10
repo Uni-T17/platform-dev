@@ -46,6 +46,17 @@ export const getBookDetailByBookId = async (bookId: number) => {
   });
 };
 
+export const getBookDetailAndRequestByBookId = async (bookId: number) => {
+  return await prisma.book.findUnique({
+    where: {
+      id: bookId,
+    },
+    include: {
+      requestedBooks: true,
+    },
+  });
+};
+
 export const getAllBooksByUserId = async (ownerId: number) => {
   return await prisma.book.findMany({
     where: {
@@ -71,11 +82,10 @@ export const updateBookByBookId = async (bookId: number, updateData: any) => {
 
 export const getAllBooks = async (cursor: number | null, limit: number) => {
   return await prisma.book.findMany({
-    skip: cursor ? cursor + 1 : 0,
-    take: limit,
-    cursor: cursor ? { id: cursor } : undefined,
+    take: limit + 1,
+    ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
     include: {
       bookOwner: {
@@ -89,6 +99,14 @@ export const getAllBooks = async (cursor: number | null, limit: number) => {
           },
         },
       },
+    },
+  });
+};
+
+export const deleteBookById = async (bookId: number) => {
+  return await prisma.book.delete({
+    where: {
+      id: bookId,
     },
   });
 };

@@ -43,3 +43,15 @@ export const getUserById = async (id: number) => {
     where: { id },
   });
 };
+
+export const getUserDetailsById = async (id: number) => {
+  return await prisma.user.findUnique({
+    where: { id },
+    omit: {
+      password: true,
+    },
+    include: {
+      book: true,
+    },
+  });
+};
