@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CreditsUsage from "@/components/custom/credits-usage";
 import TipCredits from "@/components/custom/tip-credits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { request } from "@/lib/base-client"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,13 +18,34 @@ import {
   ArrowDownLeft,
   RefreshCcw,
 } from "lucide-react";
-import { UserProfileDetails } from "@/lib/output/response";
+import { CreditResponse, UserProfileDetails } from "@/lib/output/response";
 import DeleteRequest from "@/components/custom/delete-request";
+import { useCreditState } from "@/lib/model/credit-store";
 
 export default function CreditPage() {
 
-  
+  useEffect(() => {
 
+    const load = async () => {
+      const response = await request("api/v1/owner/credits/get-credits", {
+        method : "GET",
+        credentials : "include"
+      })
+
+      const data = await response.json() as CreditResponse
+      setCredit(data.data.balance)
+      setTotalEarn(data.data.totalEarned)
+      setTotalSpent(data.data.totalSpent)
+      setRating(data.data.rating)
+      setExchanges(data.data.exchanges)
+
+    }
+
+    load()
+
+  })
+
+  const {totalEarn, totalSpent, exchanges,credit, setCredit, setExchanges, setTotalEarn, setTotalSpent,rating, setRating } = useCreditState();
   const router = useRouter();
   const [info, setInfo] = useState<UserProfileDetails>();
 
@@ -45,7 +67,7 @@ export default function CreditPage() {
 
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {info?.creditsBalance || 15} Credits
+                  {credit} Credits
                 </h2>
                 <p className="text-gray-600 text-sm">
                   Ready to exchange for new books
@@ -57,7 +79,7 @@ export default function CreditPage() {
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
                 <span className="text-lg font-bold text-gray-900">
-                  {info?.profileCard.rating || "4.8"}
+                  {rating}
                 </span>
               </div>
               <p className="text-gray-600 text-xs">Your rating</p>
@@ -76,7 +98,7 @@ export default function CreditPage() {
                 <p className="text-gray-500 text-xs font-medium mb-1">
                   Total Earned
                 </p>
-                <p className="text-lg font-bold text-green-600">12 Credits</p>
+                <p className="text-lg font-bold text-green-600">{totalEarn} Credits</p>
               </div>
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <ArrowUpRight className="h-4 w-4 text-green-600" />
@@ -93,7 +115,7 @@ export default function CreditPage() {
                 <p className="text-gray-500 text-xs font-medium mb-1">
                   Total Spent
                 </p>
-                <p className="text-lg font-bold text-red-600">10 Credits</p>
+                <p className="text-lg font-bold text-red-600">{totalSpent} Credits</p>
               </div>
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                 <ArrowDownLeft className="h-4 w-4 text-red-600" />
@@ -110,7 +132,7 @@ export default function CreditPage() {
                 <p className="text-gray-500 text-xs font-medium mb-1">
                   Exchanges
                 </p>
-                <p className="text-lg font-bold text-gray-900">5</p>
+                <p className="text-lg font-bold text-gray-900">{exchanges}</p>
               </div>
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <RefreshCcw className="h-4 w-4 text-blue-600" />

@@ -29,9 +29,9 @@ export const BookSchema = z.object({
   author: z.string(),
   credits: z.number().int().positive(),
   description: z.string(),
-  condition: z.enum(Condition),
+  condition : z.enum(Condition).optional(),
   rating: z.number().min(1).max(5),
-  category: z.enum(Category),
+  category : z.enum(Category).optional(),
   ownerName: z.string(), // display name of the lister
   ownerId: z.string(),
   general: z.string().optional(),
@@ -85,7 +85,7 @@ function BookCard({ book }: Props) {
             <span className="text-gray-500 text-[15px]">by {props.author}</span>
           </div>
 
-          {/* Condition + Category badges */}
+          {/* Condition + Category badges
           <div className="flex items-center gap-2">
             <Badge className="rounded-md px-3 py-1 text-xs font-semibold bg-green-200 text-green-800">
               {Condition[props.condition]}
@@ -93,7 +93,7 @@ function BookCard({ book }: Props) {
             <Badge className="rounded-md px-3 py-1 text-xs font-semibold bg-white text-black border border-gray-300">
               {Category[props.category as keyof typeof Category]}
             </Badge>
-          </div>
+          </div> */}
 
           {/* Rating row */}
           {(props.rating ?? 0) > 0 && (

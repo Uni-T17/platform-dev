@@ -16,9 +16,12 @@ import { Card, CardContent } from "../ui/card";
 import CustomInput from "./form-item";
 import CustomTextArea from "./text-area";
 import { Form } from "../ui/form";
+import { useRouter } from "next/navigation";
 
 export default function BookDetails() {
 
+    const router = useRouter();
+    
     const form = useForm<BookDetailsType>({
         resolver : zodResolver(BookDetailsSchema)
         
@@ -52,11 +55,14 @@ export default function BookDetails() {
 
 
         const response = await request("api/v1/owner/books/create-new-book", {
-                ...POST_CONFIG,
+                method : "POST",
                 credentials : "include",
                 body : fd
         }) 
 
+            if(response.ok) {
+                router.push("/profile")
+            }
             console.log(await response.json())
         }
     
