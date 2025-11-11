@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteBook,
   getBookDetails,
   ownerCreateNewBook,
 } from "../../controllers/book/bookController";
@@ -8,6 +9,7 @@ import { uploadToCloudinary } from "../../middlewares/cloudinaryImageUpload";
 
 const bookRoutes = Router();
 
+bookRoutes.delete("/delete-book/:bookId", deleteBook);
 bookRoutes.post(
   "/create-new-book",
   upload.single("book"),

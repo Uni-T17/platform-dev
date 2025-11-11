@@ -4,7 +4,7 @@ import React from "react";
 function TipCredits() {
   return (
     <section
-      className="max-w-3xl border rounded-lg pl-8  mb-10 shadow-sm items-center mx-auto border-teal-200/60
+      className="max-w-5xl border rounded-lg pl-8  mb-10 shadow-sm items-center mx-auto border-teal-200/60
             bg-gradient-to-r from-teal-50/60 via-amber-50/40 to-cyan-50/60"
     >
       <div className="">

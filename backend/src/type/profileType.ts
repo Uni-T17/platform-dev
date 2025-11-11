@@ -1,9 +1,12 @@
+import { BookDetailsResponseType } from "./bookType";
+
 export type CurrentUserProfileType = {
+  userId: number;
   profileCard: {
     name: string;
     email: string;
     rating: number;
-    memberSince: Date;
+    memberSince: string;
     bio?: string | null;
     liveIn?: string | null;
   };
@@ -25,11 +28,21 @@ export type PublicProfileType = {
     bio?: string | null;
     memberSince: Date;
   };
-  bookListed: number;
+  bookListed?: number;
+  books: any;
   exchanges: number;
   contactInfo: {
     phone?: string | null;
     address?: string | null;
     prefferedContact: string;
   };
+  totalReviews?: number;
+  reviews?: publicReviewType[] | null;
+};
+
+type publicReviewType = {
+  id: number;
+  rating: number;
+  description: string | null;
+  reviewBy: string | null;
 };

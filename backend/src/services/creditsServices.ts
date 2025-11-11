@@ -1,6 +1,4 @@
-import { PrismaClient } from "../../generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from ".";
 
 export const getCreditsByOwnerId = async (userId: number) => {
   return await prisma.credits.findUnique({

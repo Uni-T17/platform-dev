@@ -70,18 +70,8 @@ export type CreateBookType = {
   ownerId: number;
 };
 
-export type BookDetailsType = {
-  book: {
-    title: string;
-    author: string;
-    isbn?: string | null;
-    category: Category;
-    condition: Condition;
-    description?: string | null;
-    image: string;
-    price: number;
-    avaiableStatus: boolean;
-  };
+export type BookDetailsResponseType = {
+  book: BookResponseType;
   bookOwner: {
     ownerId: number;
     ownerName: string;
@@ -89,3 +79,35 @@ export type BookDetailsType = {
     isOwner: boolean;
   };
 };
+
+export type BookResponseType = {
+  id: number;
+  title: string;
+  author: string;
+  isbn?: string | null;
+  category: Category;
+  condition: Condition;
+  description?: string | null;
+  rating: number | null;
+  ownerName: string | null;
+  ownerId: number | null;
+  image: string;
+  price: number;
+  avaiableStatus: boolean;
+  general: string | null;
+  createdAt?: String;
+};
+
+// id: string;
+//     title: string;
+//     author: string;
+//     credits: number;
+//     description: string;
+//     condition: Condition;
+//     rating: number;
+//     category: Category;
+//     ownerName: string;
+//     ownerId: string;
+//     image?: string | undefined;
+//     general?: string | undefined;
+//     status?: boolean | undefined;

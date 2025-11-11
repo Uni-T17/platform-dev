@@ -1,6 +1,4 @@
-import { PrismaClient } from "../../generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from ".";
 
 export const getUserByEmail = async (email: string) => {
   return await prisma.user.findUnique({
@@ -43,5 +41,17 @@ export const updateUser = async (id: number, userData: any) => {
 export const getUserById = async (id: number) => {
   return await prisma.user.findUnique({
     where: { id },
+  });
+};
+
+export const getUserDetailsById = async (id: number) => {
+  return await prisma.user.findUnique({
+    where: { id },
+    omit: {
+      password: true,
+    },
+    include: {
+      book: true,
+    },
   });
 };
