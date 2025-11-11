@@ -52,37 +52,45 @@ export const ownerCreateNewBook = [
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
-      await removeFile(req.file!.filename);
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
 
-    const image = req.file;
-    checkImageNotExist(image);
-    const userId = req.userId;
-    const user = await getUserById(userId!);
-    await checkUserNotExistAndRemoveImage(user, image!.filename);
+    // You no longer have a disk file; just ensure an image was sent if required
+    // If optional, you can skip this check
+    if (!req.file) {
+      return next(createError("Image is required", 400, errorCode.invalid));
+    }
+
+    const user = await getUserById(req.userId!);
+    if (!user)
+      return next(createError("User not found", 404, errorCode.invalid));
+
+    // Cloudinary info from middleware
+    const cld = (req as any).cloudinary; // { url, publicId, ... }
+    if (!cld?.url)
+      return next(createError("Upload failed", 500, errorCode.invalid));
+
     const { title, author, isbn, category, condition, description, price } =
       req.body;
 
-    const bookData: CreateBookType = {
-      title: title,
-      author: author,
-      isbn: isbn,
-      category: category,
-      condition: condition,
-      image: image!.filename,
-      description: description,
+    // ⚠️ Adjust to your Prisma schema: either keep 'image' as URL or add 'imageUrl'/'imagePublicId'
+    const book = await createNewBook({
+      title,
+      author,
+      isbn,
+      category,
+      condition,
+      image: cld.url, // store URL instead of filename  // add this field if you want deletions later
+      description,
       price: Number(price),
-      ownerId: user!.id,
-    };
+      ownerId: user.id,
+    });
 
-    const book = await createNewBook(bookData);
-    const resData = {
+    res.status(201).json({
       message: "Successfully created a new book.",
       bookId: book.id,
-    };
-
-    res.status(200).json(resData);
+      imageUrl: cld.url,
+    });
   },
 ];
 
