@@ -5,6 +5,7 @@ import helmet from "helmet";
 import compression from "compression";
 import routes from "./routes";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 
 export const app = express();
 
@@ -49,6 +50,11 @@ app.use(routes);
 
 // if there is an error these codes will be executed (means don't stop the server will still run)
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  // console.error("🔥 ERROR:", error?.stack || error);
+
+  if (error instanceof multer.MulterError) {
+    return res.status(400).json({ message: error.message, code: error.code });
+  }
   const errorStatus = error.status || 500;
   const errorMsg = error.message || "Internal Server Error!";
   const errorCode = error.code || "Error_Server";
