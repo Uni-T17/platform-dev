@@ -20,8 +20,10 @@ import {
 import { getUserById } from "../../services/authServices";
 import {
   createNewBook,
+  deleteBookById,
   getAllBooks,
   getAllBooksByUserId,
+  getBookDetailAndRequestByBookId,
   getBookDetailByBookId,
 } from "../../services/bookServices";
 import { turnDate } from "../../utils/turnDate";
@@ -45,8 +47,8 @@ export const ownerCreateNewBook = [
     .isLength({ max: 100 })
     .escape()
     .withMessage("Author Name can't be coding words!"),
-  body("category", "Invalid category").isIn(CategoryValue),
-  body("condition", "Invalid Condition").isIn(ConditionValue),
+  body("category", "Invalid category").toUpperCase().isIn(CategoryValue),
+  body("condition", "Invalid Condition").toUpperCase().isIn(ConditionValue),
   body("description", "Invalid description")
     .optional()
     .isLength({ max: 100 })
@@ -238,5 +240,56 @@ export const getPublicBooks = [
     };
 
     res.status(200).json(resData);
+  },
+];
+
+export const deleteBook = [
+  param("bookId", "Invalid Book Id.").trim().notEmpty().isInt({ min: 1 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const { bookId } = req.params;
+    const userId = req.userId;
+
+    const book = await getBookDetailAndRequestByBookId(Number(bookId));
+    checkBookNotExist(book);
+
+    if (book!.ownerId !== userId) {
+      return next(
+        createError(
+          "You are not authorized to delete this book.",
+          403,
+          errorCode.unauthorised
+        )
+      );
+    }
+
+    if (!book!.avaiableStatus) {
+      return next(
+        createError(
+          "This book is unavaiable to delete!",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    if (book!.requestedBooks.length > 0) {
+      return next(
+        createError(
+          "This book has pending requests and cannot be deleted.",
+          400,
+          errorCode.invalid
+        )
+      );
+    }
+
+    // Additional logic to delete the book can be added here
+    await deleteBookById(Number(bookId));
+
+    res.status(200).json({ message: "Book deleted successfully." });
   },
 ];

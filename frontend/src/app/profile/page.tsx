@@ -15,6 +15,15 @@ export default function ProfilePage() {
     const router = useRouter()
     const [info, setInfo] = useState<UserProfileDetails>()
 
+    const onClick = () => {
+        router.push("/")
+    }
+
+    const goCredits   = () => router.push("/credits");
+    const golist     = () => router.push("/profile/list");
+    const goExchanges = () => router.push("/exchanges");
+    const goRating    = () => router.push("/profile/rating");
+
     useEffect(() => {
 
             const checkUser = async() =>  {
@@ -56,10 +65,10 @@ export default function ProfilePage() {
             {info && <TopCard data={info}/>}
 
             <div className="flex justify-between mt-8 gap-4 mb-8">
-                <ProfileSecondCard title="Credits" details={info?.creditsBalance.toString() || "0"} icon={CreditCardIcon}/>
-                <ProfileSecondCard title="Books Listed" details={info?.bookListed.toString() || "0"} icon={BookOpen}/>
-                <ProfileSecondCard title="Exchanges" details={info?.exchanges.toString() || "0"} icon={RefreshCw}/>
-                <ProfileSecondCard title="Rating" details={info?.profileCard.rating.toString() || "0"} icon={Award}/>
+                <ProfileSecondCard onClick={goCredits} title="Credits" details={info?.creditsBalance.toString() || "0"} icon={CreditCardIcon}/>
+                <ProfileSecondCard onClick={golist} title="Books Listed" details={info?.bookListed.toString() || "0"} icon={BookOpen}/>
+                <ProfileSecondCard onClick={goExchanges} title="Exchanges" details={info?.exchanges.toString() || "0"} icon={RefreshCw}/>
+                <ProfileSecondCard onClick={goRating} title="Rating" details={info?.profileCard.rating.toString() || "0"} icon={Award}/>
             </div>
 
             <ContactInfoCard phone={info?.contactInfo.phone || "No Phone"} email={info?.contactInfo.prefferedContact || "No Email"} address={info?.contactInfo.address || "No Address"}/>
@@ -95,15 +104,15 @@ function TopCard ({data} : {data : UserProfileDetails}) {
 }
 
 
-function ProfileSecondCard({title, details, icon : Icon} : 
-    {title : string, details : string, icon : React.ForwardRefExoticComponent<
+function ProfileSecondCard({title, details, icon : Icon, onClick} : 
+    {title : string, details : string, onClick : VoidFunction,icon : React.ForwardRefExoticComponent<
         Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
     >} ) {
 
        
 
         return(
-            <Card className="w-1/4">
+                <Card onClick={onClick} className="w-1/4">
                 <div className="flex justify-between">
                     <div className="ms-4">
                         <h1 style={{color : primary_color}}>{title}</h1>
@@ -111,7 +120,7 @@ function ProfileSecondCard({title, details, icon : Icon} :
                     </div>
                     <Icon className="me-2 size-10"/>
                 </div>
-            </Card>
+                </Card>
         )
 }
 

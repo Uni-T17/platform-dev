@@ -22,10 +22,14 @@ export const createNewRequest = async (requestData: any) => {
   });
 };
 
-export const getAllRequestsByBuyerId = async (userId: number) => {
+export const getAllRequestsByBuyerId = async (
+  userId: number,
+  status: RequestedStatus
+) => {
   return await prisma.requestedBook.findMany({
     where: {
       buyerId: userId,
+      requestedStatus: status,
     },
     include: {
       seller: {
@@ -46,11 +50,14 @@ export const getAllRequestsByBuyerId = async (userId: number) => {
   });
 };
 
-export const getAllRequestsBySellerId = async (sellerId: number) => {
+export const getAllRequestsBySellerId = async (
+  sellerId: number,
+  status: RequestedStatus
+) => {
   return await prisma.requestedBook.findMany({
     where: {
       sellerId: sellerId,
-      requestedStatus: "PENDING",
+      requestedStatus: status,
     },
     include: {
       buyer: true,
@@ -98,6 +105,14 @@ export const rejectOtherRequestsForBook = async (
       requestedStatus: "REJECT",
       message:
         "Another request has been approved for this book. Please Delete this request to get refund credits!",
+    },
+  });
+};
+
+export const deleteRequestById = async (requestId: number) => {
+  return await prisma.requestedBook.delete({
+    where: {
+      id: requestId,
     },
   });
 };

@@ -39,7 +39,39 @@ export type ProfileCard = {
 };
 
 export type ContactInfo = {
-  phone: string;
-  address: string;
-  prefferedContact: string;
-};
+    phone : string
+    address : string
+    prefferedContact : string
+}
+
+export type CreditResponse = {
+    message : string
+    data : {
+        balance : number
+        totalEarned : number
+        totalSpent : number
+        exchanges : number
+        rating : number
+    }
+}
+
+
+export type ApiBook = {
+  id: number
+  title: string
+  author: string
+  category: string          
+  condition: string         
+  image: string             
+  price: number             
+  avaiableStatus: boolean
+  createdAt: string
+}
+
+export type ApiResponse = {
+  message: string
+  isAunthenticated: boolean
+  hasNextPage: boolean
+  newCursor: number | null
+  booksList: ApiBook[]
+}

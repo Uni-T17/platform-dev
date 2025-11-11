@@ -1,21 +1,27 @@
 "use client"
 
-import { Card, CardContent, CardTitle } from "../ui/card";
 import { BookDetailsSchema, BookDetailsType } from "@/lib/model/book-detail-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomInput from "./form-item";
 import { useForm } from "react-hook-form";
-import { Form } from "../ui/form";
 import CustomSelect from "./form-select";
 import { categoryOptions, conditionOptions } from "@/lib/model/option";
 import ConditonCard from "./conditon-card";
-import CustomTextArea from "./text-area";
-import { Button } from "../ui/button";
+
+import { request } from "@/lib/base-client"
+import { POST_CONFIG } from "@/lib/rest-utils";
 import ImageSaving from "./image-saving";
+import { Button } from "../ui/button";
 import { primary_color } from "@/app/color";
+import { Card, CardContent } from "../ui/card";
+import CustomInput from "./form-item";
+import CustomTextArea from "./text-area";
+import { Form } from "../ui/form";
+import { useRouter } from "next/navigation";
 
 export default function BookDetails() {
 
+    const router = useRouter();
+    
     const form = useForm<BookDetailsType>({
         resolver : zodResolver(BookDetailsSchema)
         
@@ -25,9 +31,41 @@ export default function BookDetails() {
         form.reset()
     }
 
-    const onSave = () => {
+    const onSave = async () => {
         console.log(form.getValues())
-    }
+
+        const values = form.getValues();
+
+        const fd = new FormData();
+        fd.append("title", values.title);
+        fd.append("author", values.author);
+        fd.append("isbn", values.isbn);
+        fd.append("category", values.category);
+        fd.append("condition", values.condition);
+        fd.append("description", values.description);
+        fd.append("price", String(values.price));
+        fd.append("avaiableStatus", "true");
+        
+        const bookVal = values.book as unknown as File | File[] | null | undefined;
+        if (bookVal instanceof File) {
+            fd.append("book", bookVal);
+        } else if (Array.isArray(bookVal) && bookVal.length > 0) {
+            fd.append("book", bookVal[0]);
+        }
+
+
+        const response = await request("api/v1/owner/books/create-new-book", {
+                method : "POST",
+                credentials : "include",
+                body : fd
+        }) 
+
+            if(response.ok) {
+                router.push("/profile")
+            }
+            console.log(await response.json())
+        }
+    
 
     return(
         <Card className="w-2/4">
@@ -75,7 +113,7 @@ export default function BookDetails() {
 
                         <CustomInput 
                             control={form.control}
-                            path="credit"
+                            path="price"
                             label="Credit"
                             placeholder="Enter Selling Credit"
                             type="number"
@@ -101,7 +139,7 @@ export default function BookDetails() {
 
                         <ImageSaving 
                             control={form.control}
-                            path="photo"
+                            path="book"
                             onSave={(file) => {
                                 console.log("Saving file:", file.name)
                             }}
