@@ -4,8 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Books } from "@/lib/model/dummy-data/book-props";
 import BookCard from "@/components/custom/book-card";
-import { UserProfileDetails } from "@/lib/output/response";
+import { UserProfileDetails, ApiBook } from "@/lib/output/response";
 import { CalendarIcon, StarFilledIcon, StarIcon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
+import { request } from "@/lib/base-client";
 import {
   ArrowLeft,
   Book,
@@ -18,55 +20,42 @@ import { Button } from "@/components/ui/button";
 
 export default function PublicProfilePage() {
   const { id } = useParams();
+  const userId = Array.isArray(id) ? id[0] : id ?? "";
   const router = useRouter();
-  const ownerBooks = Books.filter((b) => b.ownerId === id);
+  const [ownerBooks, setOwnerBooks] = useState<ApiBook[]>([]);
+  const [data, setData] = useState<{
+    profileCard: UserProfileDetails["profileCard"];
+    books: ApiBook[];
+    reviews?: any[];
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock review data
-  const reviews = [
-    {
-      id: 1,
-      reviewerName: "Emily Chen",
-      rating: 5,
-      timeAgo: "1 week ago",
-      comment:
-        "Technical books were in excellent condition. Very knowledgeable about the subjects.",
-    },
-    {
-      id: 2,
-      reviewerName: "Alex Rivera",
-      rating: 4,
-      timeAgo: "3 weeks ago",
-      comment:
-        "Good experience overall. Books arrived on time and as described.",
-    },
-    {
-      id: 3,
-      reviewerName: "Lisa Wang",
-      rating: 5,
-      timeAgo: "1 month ago",
-      comment:
-        "Professional and responsive. Great selection of programming books.",
-    },
-  ];
+  // load public profile
+  useEffect(() => {
+    const load = async () => {
+      if (!userId) return;
+      try {
+        setLoading(true);
+        const res = await request(`api/v1/user/profile/${id}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const json = await res.json();
+        // backend returns { message, data: { profileCard, books, ... } }
+        const d = json.data;
+        setData(d);
+        setOwnerBooks(d.books ?? []);
+      } catch (e: any) {
+        console.error("Failed to load public profile", e);
+        setError(e?.message ?? "Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const mockUserData: UserProfileDetails = {
-    profileCard: {
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      rating: "4.8",
-      memberSince: "2022",
-      bio: "Love exchanging books and learning.",
-      liveIn: "New York",
-    },
-    creditsBalance: 0,
-    bookListed: 0,
-    exchanges: 0,
-    contactInfo: {
-      phone: "",
-      address: "",
-      prefferedContact: "",
-    },
-  };
+    load();
+  }, [id]);
   return (
     <div className="mx-28 max-w-7xl px-6 py-10">
       <div>
@@ -78,18 +67,29 @@ export default function PublicProfilePage() {
           Back
         </Button>
       </div>
-      <TopCard data={mockUserData} />
-      {/* Stats Cards */}
+
+      {loading ? (
+        <div>Loading profile…</div>
+      ) : error ? (
+        <div className="text-red-600">{error}</div>
+      ) : data ? (
+        <>
+          <TopCard data={{ profileCard: data.profileCard, creditsBalance: 0, bookListed: data.books?.length ?? 0, exchanges: 0 }} />
+        </>
+      ) : (
+        <div className="text-gray-500">Profile not found.</div>
+      )}
+  {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Average Rating */}
-        <Card className="border border-gray-200 gap-0 rounded-2xl p-4 text-center">
+          <Card className="border border-gray-200 gap-0 rounded-2xl p-4 text-center">
           <div className="flex items-center justify-center mb-2">
             <span className="text-yellow-500 text-lg mr-2">
               <StarFilledIcon />
             </span>
-            <span className="text-xl font-bold text-gray-900">
-              {mockUserData.profileCard.rating}
-            </span>
+              <span className="text-xl font-bold text-gray-900">
+                {data?.profileCard.rating ?? "-"}
+              </span>
           </div>
           <p className="text-gray-500 text-sm font-medium">Average Rating</p>
         </Card>
@@ -100,7 +100,7 @@ export default function PublicProfilePage() {
             <span className="text-lg mr-2">
               <RefreshCcwIcon />
             </span>
-            <span className="text-xl font-bold text-gray-900">15</span>
+            <span className="text-xl font-bold text-gray-900">{data?.profileCard ? (data?.reviews?.length ?? "-") : "-"}</span>
           </div>
           <p className="text-gray-500 text-sm font-medium">Exchanges</p>
         </Card>
@@ -119,23 +119,44 @@ export default function PublicProfilePage() {
         </Card>
       </div>
       <div className="border border-gray-200 mb-8 rounded-lg p-6">
-        <h1 className="text-xl font-semibold mb-6">
-          Books Posted ({ownerBooks.length})
-        </h1>
+        <h1 className="text-xl font-semibold mb-6">Books Posted ({ownerBooks.length})</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ownerBooks.map((book) => (
-            <BookCard key={book.id} book={book} />
+          {ownerBooks.map((book: ApiBook) => (
+            <BookCard
+              key={book.id}
+              book={{
+                id: book.id.toString(),
+                image: book.image?.startsWith("http") ? book.image : `/${book.image}`,
+                title: book.title,
+                author: book.author,
+                credits: Math.max(1, Math.round(book.price ?? 1)),
+                description: (book as any).description ?? "",
+                condition: book.condition as any,
+                rating: 1,
+                category: book.category as any,
+                ownerName: data?.profileCard.name ?? "",
+                ownerId: userId ?? "0",
+                general: "",
+                status: true,
+              }}
+            />
           ))}
         </div>
       </div>
       {/* Recent Reviews Section */}
       <div className="border border-gray-200 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-6">
-          Recent Reviews ({reviews.length})
-        </h2>
+        <h2 className="text-lg font-semibold mb-6">Recent Reviews ({data?.reviews?.length ?? 0})</h2>
         <div className="space-y-6">
-          {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} />
+          {(data?.reviews ?? []).map((review: any) => (
+            <ReviewCard
+              key={review.id}
+              review={{
+                reviewerName: review.reviewBy ?? "Unknown",
+                rating: review.rating ?? 0,
+                timeAgo: review.createdAt ?? "",
+                comment: review.description ?? "",
+              }}
+            />
           ))}
         </div>
       </div>

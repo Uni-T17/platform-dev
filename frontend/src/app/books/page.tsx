@@ -1,9 +1,52 @@
+"use client"
+
 import BookCard from "@/components/custom/book-card";
 import SearchBar from "@/components/custom/serach-bar";
 import WelcomeBox from "@/components/custom/welcome-box";
 import { Category, Condition } from "@/lib/model/book";
+import { useEffect, useState } from "react";
+import { request } from "@/lib/base-client"
+import { ApiBook, ApiResponse } from "@/lib/output/response";
+import { BASEURL } from "@/lib/url";
 
 export default function BrowseBook() {
+
+  const [books, setBooks] = useState<ApiBook[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+
+    const load = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        // Fetch the full book list for browsing
+        // Request with a large `limit` so backend returns more than the default 3.
+        // The backend paginates and defaults `limit` to 3 in `getPublicBooks`.
+        const response = await request("api/v1/user/books/get-all-books?limit=1000", {
+          method: "GET",
+          credentials: "include",
+        })
+
+        const json = await response.json()
+
+        // backend may return books under different keys; prefer booksList
+        const list: ApiBook[] = json.booksList ?? json.books ?? json.data?.books ?? json.data?.booksList ?? []
+
+        setBooks(list || [])
+      } catch (err: any) {
+        console.error("Failed to load books", err)
+        setError(err?.message || "Failed to load books")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+
+  }, [])
+
   return (
     <div className="p-4">
       <WelcomeBox />
@@ -13,67 +56,41 @@ export default function BrowseBook() {
         Available Books
       </span>
 
-      <div className="flex justify-center gap-8">
-        <BookCard
-          book={{
-            id: "1",
-            image:
-              "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200",
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            credits: 3,
-            description:
-              "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
-            rating: 4.5,
-            category: Category.Fiction,
-            ownerName: "Alice Johnson",
-            ownerId: "42",
-            status: true,
-          }}
-        />
+      {loading ? (
+        <div className="py-6">Loading books...</div>
+      ) : error ? (
+        <div className="py-6 text-red-600">{error}</div>
+      ) : books.length === 0 ? (
+        <div className="py-6">No books available.</div>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-8">
+          {books.map((b) => {
+            const image = (() => {
+              if (!b.image) return "";
+              if (b.image.startsWith("http") || b.image.startsWith("/")) return b.image;
+              return `${BASEURL}/${b.image}`;
+            })();
 
-        <BookCard
-          book={{
-            id: "1",
-            image:
-              "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200",
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            credits: 3,
-            description:
-              "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
-            rating: 4.5,
-            category: Category.Fiction,
-            ownerName: "Alice Johnson",
-            ownerId: "42",
-            status: true,
-          }}
-        />
+            const card = {
+              id: b.id.toString(),
+              image,
+              title: b.title,
+              author: b.author,
+              credits: Math.max(1, Math.round(b.price || 1)),
+              description: "",
+              condition: (b.condition as Condition) || undefined,
+              rating: 1,
+              category: (b.category as Category) || undefined,
+              ownerName: "",
+              ownerId: "0",
+              general: "",
+              status: !!b.avaiableStatus,
+            };
 
-        <BookCard
-          book={{
-            id: "1",
-            image:
-              "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200",
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            credits: 3,
-            description:
-              "A novel set in the Jazz Age exploring wealth and illusion.",
-            condition: Condition.Good,
-            general: "Classic literature about love and tragedy.",
-            rating: 4.5,
-            category: Category.Fiction,
-            ownerName: "Alice Johnson",
-            status: true,
-            ownerId: "42",
-          }}
-        />
-      </div>
+            return <BookCard key={b.id} book={card} />;
+          })}
+        </div>
+      )}
     </div>
   );
 }

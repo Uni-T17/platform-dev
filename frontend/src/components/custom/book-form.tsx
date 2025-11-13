@@ -16,9 +16,12 @@ import { Card, CardContent } from "../ui/card";
 import CustomInput from "./form-item";
 import CustomTextArea from "./text-area";
 import { Form } from "../ui/form";
+import { useRouter } from "next/navigation";
 
 export default function BookDetails() {
 
+    const router = useRouter();
+    
     const form = useForm<BookDetailsType>({
         resolver : zodResolver(BookDetailsSchema)
         
@@ -31,11 +34,43 @@ export default function BookDetails() {
     const onSave = async () => {
         console.log(form.getValues())
 
+        const values = form.getValues();
+
+        const fd = new FormData();
+        fd.append("title", values.title);
+        fd.append("author", values.author);
+        fd.append("isbn", values.isbn);
+        // Normalize category to backend-expected canonical values
+        const categoryMap: Record<string, string> = {
+            NONFICTION: "NONFICTON",
+            PHILOSOPHY: "PHYLOSOPHY",
+        };
+        const categoryInput = (values.category || "").toString().trim().toUpperCase();
+        const categoryToSend = categoryMap[categoryInput] || categoryInput;
+        console.log("Sending category:", categoryInput, "->", categoryToSend);
+        fd.append("category", categoryToSend);
+        fd.append("condition", values.condition);
+        fd.append("description", values.description);
+        fd.append("price", String(values.price));
+        fd.append("avaiableStatus", "true");
+        
+        const bookVal = values.book as unknown as File | File[] | null | undefined;
+        if (bookVal instanceof File) {
+            fd.append("book", bookVal);
+        } else if (Array.isArray(bookVal) && bookVal.length > 0) {
+            fd.append("book", bookVal[0]);
+        }
+
+
         const response = await request("api/v1/owner/books/create-new-book", {
-                ...POST_CONFIG,
-                credentials : "include"
+                method : "POST",
+                credentials : "include",
+                body : fd
         }) 
 
+            if(response.ok) {
+                router.push("/profile")
+            }
             console.log(await response.json())
         }
     

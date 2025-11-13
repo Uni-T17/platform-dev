@@ -23,17 +23,25 @@ import { useAuthStore } from "@/lib/model/auth-store";
 const WebImage = z.union([z.string().url(), z.string().startsWith("/")]);
 
 export const BookSchema = z.object({
-  id: z.string(),
+  id: z.preprocess((v) => (v == null ? "" : String(v)), z.string()),
   image: WebImage.optional(),
-  title: z.string(),
-  author: z.string(),
-  credits: z.number().int().positive(),
-  description: z.string(),
-  condition: z.enum(Condition),
-  rating: z.number().min(1).max(5),
-  category: z.enum(Category),
-  ownerName: z.string(), // display name of the lister
-  ownerId: z.string(),
+  title: z.preprocess((v) => (v == null ? "Untitled" : String(v)), z.string()),
+  author: z.preprocess((v) => (v == null ? "Unknown" : String(v)), z.string()),
+  credits: z.preprocess((v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }, z.number().int().nonnegative()),
+  description: z.preprocess((v) => (v == null ? "" : String(v)), z.string()),
+  condition: z.enum(Condition).optional(),
+  // rating may be missing or numeric string from backend; coerce and allow 0..5
+  rating: z.preprocess((v) => {
+    if (v == null || v === "") return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  }, z.number().min(0).max(5).optional()),
+  category: z.enum(Category).optional(),
+  ownerName: z.preprocess((v) => (v == null ? "" : String(v)), z.string()), // display name of the lister
+  ownerId: z.preprocess((v) => (v == null ? "0" : String(v)), z.string()),
   general: z.string().optional(),
   status: z.boolean().optional(),
 });
@@ -49,16 +57,64 @@ function BookCard({ book }: Props) {
   const router = useRouter();
   const handleView = () => router.push(`/books/${book.id}`);
 
+  // When validation fails, log detailed info and fall back to a permissive
+  // rendering using raw fields (with sensible defaults) so the UI remains usable.
+  let props: any;
   if (!result.success) {
-    console.error(result.error.flatten());
-    return (
-      <Card className="p-4 border border-red-400 text-red-600">
-        Invalid book data.
-      </Card>
-    );
-  }
+    try {
+      // Zod errors expose `issues` (array) and a `format()` helper; older
+      // code used `errors` which may be undefined and produce empty `{}`
+      // when logged. Build a safe, serializable object for console output.
+      const serializedError: any = {
+        message: result.error?.message,
+        issues: Array.isArray((result.error as any)?.issues) ? (result.error as any).issues : undefined,
+        formatted: typeof (result.error as any)?.format === "function" ? (result.error as any).format() : undefined,
+      };
 
-  const props = result.data;
+      // Serialize to avoid Chrome showing collapsed `{}` for live objects
+      let errStr: string;
+      try {
+        errStr = JSON.stringify(serializedError, null, 2);
+      } catch (e) {
+        errStr = String(serializedError);
+      }
+
+      let rawStr: string;
+      try {
+        rawStr = JSON.stringify(book, (_key, value) => {
+          // strip functions and React internals that may cause circular refs
+          if (typeof value === "function") return undefined;
+          return value;
+        }, 2);
+      } catch (e) {
+        rawStr = String(book);
+      }
+
+      console.error("Book schema validation failed:", errStr, "raw:", rawStr);
+    } catch (logErr) {
+      console.error("Failed to log book validation error", logErr, book);
+    }
+
+    // Build a permissive fallback object from the raw book data.
+    const raw: any = book || {};
+    props = {
+      id: raw.id != null ? String(raw.id) : "",
+      image: raw.image ?? undefined,
+      title: raw.title ?? String(raw.id ?? "Untitled"),
+      author: raw.author ?? "Unknown",
+      credits: Number(raw.credits) || 0,
+      description: raw.description ?? "",
+      condition: raw.condition ?? undefined,
+      rating: raw.rating != null ? Number(raw.rating) || 0 : 0,
+      category: raw.category ?? undefined,
+      ownerName: raw.ownerName ?? "",
+      ownerId: raw.ownerId != null ? String(raw.ownerId) : "0",
+      general: raw.general ?? undefined,
+      status: typeof raw.status === "boolean" ? raw.status : undefined,
+    };
+  } else {
+    props = result.data;
+  }
 
   return (
     <Card className="  p-0 cursor-pointer overflow-hidden grid rounded-2xl border shadow-sm w-[320px] h-[650px] ">
@@ -85,7 +141,7 @@ function BookCard({ book }: Props) {
             <span className="text-gray-500 text-[15px]">by {props.author}</span>
           </div>
 
-          {/* Condition + Category badges */}
+          {/* Condition + Category badges
           <div className="flex items-center gap-2">
             <Badge className="rounded-md px-3 py-1 text-xs font-semibold bg-green-200 text-green-800">
               {Condition[props.condition]}
@@ -93,7 +149,7 @@ function BookCard({ book }: Props) {
             <Badge className="rounded-md px-3 py-1 text-xs font-semibold bg-white text-black border border-gray-300">
               {Category[props.category as keyof typeof Category]}
             </Badge>
-          </div>
+          </div> */}
 
           {/* Rating row */}
           {(props.rating ?? 0) > 0 && (
