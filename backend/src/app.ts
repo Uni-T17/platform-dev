@@ -11,7 +11,7 @@ export const app = express();
 
 // Add  CORS
 var whitelist = [
-  "http://example1.com",
+  "https://perfect-light-production-ae50.up.railway.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
