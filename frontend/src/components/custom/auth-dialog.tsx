@@ -33,6 +33,7 @@ import { BASEURL } from "@/lib/url";
 import { request } from "@/lib/base-client";
 import { POST_CONFIG, RestClientException } from "@/lib/rest-utils";
 import { ConfirmPasswordRespone, OtpRespone, VerifyRespone } from "@/lib/output/response";
+import { useUserIdStore } from "@/lib/model/user-id-store";
 
 type AuthDialogProsps = {
   open: boolean;
@@ -49,6 +50,8 @@ export default function AuthDialog({
   showTrigger = true,
   icon,
 }: AuthDialogProsps) {
+
+  const {setId} = useUserIdStore();
 
   const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY" | "Details">("REQUEST");
   const [otpEmail, SetOtpEmail] = useState<string>("");
@@ -90,6 +93,7 @@ export default function AuthDialog({
        })
 
       const data : ConfirmPasswordRespone =await response.json()
+      setId(data.newUserId);
       console.log(data.newUserId)
       useAuthStore.getState().setIsAuth(true);
       router.push("/books");

@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { StarFilledIcon } from "@radix-ui/react-icons"
 import { MessagesSquare } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { request } from "@/lib/base-client"
 
 type ReviewCardProps = {
@@ -16,30 +16,48 @@ type ReviewCardProps = {
 
 export default function ViewRating() {
 
+    const [reviews, setReviews] = useState<ReviewCardProps[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
     useEffect(() => {
-
         const load = async () => {
-
-            const response = await request("api/v1/owner/reviews/get-all-reviews", {
-                method : "GET",
-                credentials : "include"
-            })
-
-            console.log(response.json())
-            
+            try {
+                setLoading(true)
+                const response = await request("api/v1/owner/reviews/get-all-reviews", {
+                    method: "GET",
+                    credentials: "include",
+                })
+                const json = await response.json()
+                // json.reviews is expected
+                setReviews((json.reviews ?? []).map((r: any) => ({
+                    name: r.reviewBy ?? "Unknown",
+                    at: r.createdAt ?? "",
+                    rating: r.rating ?? 0,
+                    comment: r.description ?? "",
+                    bookName: r.bookName ?? "",
+                })))
+            } catch (e: any) {
+                console.error(e)
+                setError(e?.message ?? "Failed to load reviews")
+            } finally {
+                setLoading(false)
+            }
         }
 
         load()
-    })
+    }, [])
 
     return(
         <section className="mx-auto max-w-5xl">
             <h1 className="text-3xl font-bold mb-4">My Review</h1>
             <h1>Reviews from users you've exchanged books with</h1>
 
-            <ReviewCard name="Michael Chen" at="October 10, 2024" 
-            rating={4} comment="Good experience overall. Book condition matched the description. Would exchange again."
-            bookName="Sapiens"/>
+            {loading && <div className="text-gray-500">Loading reviews…</div>}
+            {error && <div className="text-red-600">{error}</div>}
+            {!loading && reviews.map((r, i) => (
+                <ReviewCard key={i} name={r.name} at={r.at} rating={r.rating} comment={r.comment} bookName={r.bookName} />
+            ))}
         </section>
     )
 }

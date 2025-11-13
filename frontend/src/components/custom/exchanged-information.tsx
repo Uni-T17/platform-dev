@@ -17,7 +17,11 @@ import {
 import RequestForm from "@/components/custom/request-form";
 import { Category, Condition } from "@/lib/model/book";
 
-export default function ExchangedInformation() {
+type Props = {
+  showRequestButton?: boolean;
+};
+
+export default function ExchangedInformation({ showRequestButton = true }: Props) {
   const { id } = useParams();
   const router = useRouter();
   const { isAuth, openAuth } = useAuthStore();
@@ -65,46 +69,48 @@ export default function ExchangedInformation() {
             </span>
           </div>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button
-                disabled={myCredits < book.credits}
-                className="w-full bg-[#1A7A7A] hover:bg-[#166666] text-white font-semibold rounded-xl disabled:opacity-70"
-              >
-                {myCredits < book.credits
-                  ? "Not Enough Credits"
-                  : "Request This Book"}
-              </Button>
-            </DialogTrigger>
+          {showRequestButton && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  disabled={myCredits < book.credits}
+                  className="w-full bg-[#1A7A7A] hover:bg-[#166666] text-white font-semibold rounded-xl disabled:opacity-70"
+                >
+                  {myCredits < book.credits
+                    ? "Not Enough Credits"
+                    : "Request This Book"}
+                </Button>
+              </DialogTrigger>
 
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Request &quot;{book.title}&quot;</DialogTitle>
-                <DialogDescription>
-                  Send a request to the book owner to exchange this book.
-                </DialogDescription>
-              </DialogHeader>
-              {/* Form body */}
-              <RequestForm
-                book={{
-                  id: book.id,
-                  image: book.image,
-                  title: book.title,
-                  author: book.author,
-                  credits: book.credits,
-                  description: book.description,
-                  condition: book.condition,
-                  general: book.general,
-                  rating: book.rating,
-                  category: book.category,
-                  status: false,
-                  ownerId: "",
-                  ownerName: "",
-                }}
-                myCredits={myCredits}
-              />
-            </DialogContent>
-          </Dialog>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Request &quot;{book.title}&quot;</DialogTitle>
+                  <DialogDescription>
+                    Send a request to the book owner to exchange this book.
+                  </DialogDescription>
+                </DialogHeader>
+                {/* Form body */}
+                <RequestForm
+                  book={{
+                    id: book.id,
+                    image: book.image,
+                    title: book.title,
+                    author: book.author,
+                    credits: book.credits,
+                    description: book.description,
+                    condition: book.condition,
+                    general: book.general,
+                    rating: book.rating,
+                    category: book.category,
+                    status: false,
+                    ownerId: "",
+                    ownerName: "",
+                  }}
+                  myCredits={myCredits}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </>
       )}
     </div>

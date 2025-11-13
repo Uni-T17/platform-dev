@@ -18,29 +18,34 @@ export type ConfirmPasswordRespone = {
 
 export type UserProfileRespone = {
   message: string;
-  data: UserProfileDetails;
+  data: {
+    userId : number
+    profileCard: ProfileCard;
+    userProfileDetails: UserProfileDetails;
+  }
 };
+
+export type UserProfileDetailsWithId = UserProfileDetails & { userId: number };
 
 export type UserProfileDetails = {
   profileCard: ProfileCard;
   creditsBalance: number;
   bookListed: number;
   exchanges: number;
-  contactInfo: ContactInfo;
 };
 
 export type ProfileCard = {
   name: string;
   email: string;
-  rating: string;
+  rating: number;
   memberSince: string;
-  bio: string;
-  liveIn: string;
+  bio: string | null;     
+  liveIn: string | null;
 };
 
 export type ContactInfo = {
-    phone : string
-    address : string
+    phone : string | null
+    address : string | null
     prefferedContact : string
 }
 

@@ -40,7 +40,15 @@ export default function BookDetails() {
         fd.append("title", values.title);
         fd.append("author", values.author);
         fd.append("isbn", values.isbn);
-        fd.append("category", values.category);
+        // Normalize category to backend-expected canonical values
+        const categoryMap: Record<string, string> = {
+            NONFICTION: "NONFICTON",
+            PHILOSOPHY: "PHYLOSOPHY",
+        };
+        const categoryInput = (values.category || "").toString().trim().toUpperCase();
+        const categoryToSend = categoryMap[categoryInput] || categoryInput;
+        console.log("Sending category:", categoryInput, "->", categoryToSend);
+        fd.append("category", categoryToSend);
         fd.append("condition", values.condition);
         fd.append("description", values.description);
         fd.append("price", String(values.price));
