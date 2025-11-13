@@ -1,1 +1,1 @@
-export const BASEURL = "https://platform-dev-production.up.railway.app"
+export const BASEURL = process.env.NEXT_PUBLIC_API_URL
