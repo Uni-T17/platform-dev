@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { request } from "@/lib/base-client"
 import { UserProfileRespone } from "@/lib/output/response"
-import { Award, BookOpen, CreditCard, CreditCardIcon, Locate, LocationEdit, LogOut, LucideMail, LucideProps, Mail, MapPin, Notebook, Pencil, Phone, RefreshCcw, RefreshCw, RefreshCwOff, Star, TimerIcon, User } from "lucide-react"
+import { Award, BookOpen, CreditCardIcon, LocationEdit, LogOut, LucideProps, Mail, MapPin, Pencil, Phone, RefreshCw, Star, TimerIcon } from "lucide-react"
 import { useAuthStore } from "@/lib/model/auth-store";
 import { useEffect, useState } from "react"
 import { primary_color } from "../color"
@@ -16,7 +16,6 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

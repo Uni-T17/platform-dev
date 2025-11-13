@@ -12,7 +12,7 @@ import {
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Form } from "../ui/form";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   RequestOtpForm,
   RequestOtpSchema,

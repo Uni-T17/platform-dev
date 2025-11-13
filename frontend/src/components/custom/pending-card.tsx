@@ -1,4 +1,4 @@
-import { CheckCircle, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import React from "react";
 
 export function PendingCard({

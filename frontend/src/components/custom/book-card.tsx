@@ -5,7 +5,6 @@ import React from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 import {
   Card,

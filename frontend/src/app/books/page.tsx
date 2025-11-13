@@ -6,7 +6,7 @@ import WelcomeBox from "@/components/custom/welcome-box";
 import { Category, Condition } from "@/lib/model/book";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client"
-import { ApiBook, ApiResponse } from "@/lib/output/response";
+import { ApiBook } from "@/lib/output/response";
 import { BASEURL } from "@/lib/url";
 
 export default function BrowseBook() {

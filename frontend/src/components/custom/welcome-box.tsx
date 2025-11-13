@@ -2,14 +2,12 @@
 import React, { useState } from "react";
 import AuthDialog from "./auth-dialog";
 import { useAuthStore } from "@/lib/model/auth-store";
-import { is } from "zod/v4/locales";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { primary_color } from "@/app/color";
 import {
   Book,
   CreditCard,
-  PersonStandingIcon,
   PlusIcon,
   User,
 } from "lucide-react";

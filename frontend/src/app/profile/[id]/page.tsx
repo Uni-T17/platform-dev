@@ -2,17 +2,14 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { Books } from "@/lib/model/dummy-data/book-props";
 import BookCard from "@/components/custom/book-card";
 import { UserProfileDetails, ApiBook } from "@/lib/output/response";
-import { CalendarIcon, StarFilledIcon, StarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client";
 import {
   ArrowLeft,
-  Book,
   BookOpenIcon,
-  MapPinCheckIcon,
   MapPinIcon,
   RefreshCcwIcon,
 } from "lucide-react";

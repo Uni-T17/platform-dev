@@ -9,7 +9,7 @@ import { Form } from "@/components/ui/form";
 import CustomInput from "./form-item";
 import CustomSelect from "./form-select";
 import { PersonIcon, StarIcon } from "@radix-ui/react-icons";
-import { MapPinIcon, PencilIcon, Phone, PhoneIcon } from "lucide-react";
+import { MapPinIcon, PencilIcon, PhoneIcon } from "lucide-react";
 
 const schema = z.object({
   phone: z.string().min(7, "Invalid phone number"),
