@@ -2,7 +2,6 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Books } from "@/lib/model/dummy-data/book-props";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star, Wallet } from "lucide-react";

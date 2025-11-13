@@ -5,7 +5,6 @@ import { Wallet } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/model/auth-store";
 import { Button } from "../ui/button";
-import { Books } from "@/lib/model/dummy-data/book-props";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import RequestForm from "@/components/custom/request-form";
-import { Category, Condition } from "@/lib/model/book";
+import { Books } from "@/lib/model/dummy-data/book-props";
 
 type Props = {
   showRequestButton?: boolean;

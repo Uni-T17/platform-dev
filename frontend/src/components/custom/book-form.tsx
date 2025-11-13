@@ -8,7 +8,6 @@ import { categoryOptions, conditionOptions } from "@/lib/model/option";
 import ConditonCard from "./conditon-card";
 
 import { request } from "@/lib/base-client"
-import { POST_CONFIG } from "@/lib/rest-utils";
 import ImageSaving from "./image-saving";
 import { Button } from "../ui/button";
 import { primary_color } from "@/app/color";

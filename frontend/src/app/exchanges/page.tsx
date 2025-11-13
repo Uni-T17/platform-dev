@@ -4,7 +4,7 @@ import ActiveCard from "@/components/custom/active-card";
 import CompletedCard from "@/components/custom/complete-card";
 import { PendingCard } from "@/components/custom/pending-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 type BookExchangesDetails = {
