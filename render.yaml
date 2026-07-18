@@ -1,0 +1,32 @@
+# Render blueprint for the BookEx backend (Express + Prisma).
+# Deploy: Render Dashboard → New → Blueprint → pick this repo.
+# The database lives on Neon (set DATABASE_URL below in the Render dashboard).
+services:
+  - type: web
+    name: bookex-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Your Vercel frontend URL, e.g. https://your-app.vercel.app (no trailing slash).
+      - key: CORS_ORIGINS
+        sync: false
+      # Neon "Prisma" connection string (ends with ?sslmode=require).
+      - key: DATABASE_URL
+        sync: false
+      # Strong independent secrets (Render can generate these).
+      - key: ACCESS_TOKEN_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      # Cloudinary credentials for image uploads.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

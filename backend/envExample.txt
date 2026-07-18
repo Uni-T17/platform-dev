@@ -1,10 +1,25 @@
 NODE_ENV = development
 PORT = 8080
-OTP_EMAIL = 
-OTP_EMAIL_PW = 
 
+# Comma-separated list of allowed frontend origins for CORS (no trailing slash).
+# In production set this to your Vercel URL, e.g.:
+#   CORS_ORIGINS=https://your-app.vercel.app
+# localhost:3000 and localhost:5173 are always allowed for local dev.
+CORS_ORIGINS =
 
-ACCESS_TOKEN_SECRET = 
+# Postgres connection string. For Neon, copy the "Prisma" connection string
+# from the Neon dashboard (it ends with ?sslmode=require).
+#   DATABASE_URL="postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
+DATABASE_URL=
+
+ACCESS_TOKEN_SECRET =
 REFRESH_TOKEN_SECRET =
 
-DATABASE_URL=
+# Cloudinary (required for book-cover image uploads)
+CLOUDINARY_CLOUD_NAME =
+CLOUDINARY_API_KEY =
+CLOUDINARY_API_SECRET =
+
+# Present in the original template but not used by the current OTP implementation
+OTP_EMAIL =
+OTP_EMAIL_PW =

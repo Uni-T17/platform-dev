@@ -10,8 +10,14 @@ import multer from "multer";
 export const app = express();
 
 // Add  CORS
-var whitelist = [
-  "https://perfect-light-production-ae50.up.railway.app",
+// Allowed origins come from the CORS_ORIGINS env var (comma-separated),
+// so production frontend URLs can change without a code edit.
+// Local dev origins are always allowed.
+const whitelist = [
+  ...(process.env.CORS_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean),
   "http://localhost:5173",
   "http://localhost:3000",
 ];
@@ -45,6 +51,11 @@ app
   .use(compression());
 
 app.use(express.static("upload/images"));
+
+// Health check for hosting platforms (Render/Vercel) — must return 200.
+app.get(["/", "/health"], (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok" });
+});
 
 app.use(routes);
 
