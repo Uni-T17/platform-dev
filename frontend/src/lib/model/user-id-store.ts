@@ -1,12 +1,18 @@
 import { create } from "zustand"
+import { persist } from "zustand/middleware"
 
 
-type CreditState = {
+type UserIdState = {
     id : number
     setId : (value : number) => void
 }
 
-export const useUserIdStore = create<CreditState>((set) => ({
-    id : 0,
-    setId : (value) => set({id : value})
-}))
+export const useUserIdStore = create<UserIdState>()(
+    persist(
+        (set) => ({
+            id: 0,
+            setId: (value) => set({ id: value }),
+        }),
+        { name: "bookex-user-id" }
+    )
+)

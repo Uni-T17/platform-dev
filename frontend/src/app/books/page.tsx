@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client"
 import { ApiBook } from "@/lib/output/response";
 import { BASEURL } from "@/lib/url";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BrowseBook() {
 
@@ -48,22 +49,36 @@ export default function BrowseBook() {
   }, [])
 
   return (
-    <div className="p-4">
+    <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       <WelcomeBox />
 
       <SearchBar />
-      <span className="text-lg font-semibold ml-35 mt-6 mb-4 inline-block">
-        Available Books
-      </span>
+      <h2 className="mb-4 mt-6 text-lg font-semibold">Available Books</h2>
 
       {loading ? (
-        <div className="py-6">Loading books...</div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
       ) : error ? (
-        <div className="py-6 text-red-600">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-red-600">
+          {error}
+        </div>
       ) : books.length === 0 ? (
-        <div className="py-6">No books available.</div>
+        <div className="rounded-lg border border-dashed py-16 text-center text-gray-500">
+          No books available yet. Be the first to{" "}
+          <a href="/books/new" className="font-medium text-teal-700 hover:underline">
+            list one
+          </a>
+          .
+        </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {books.map((b) => {
             const image = (() => {
               if (!b.image) return "";

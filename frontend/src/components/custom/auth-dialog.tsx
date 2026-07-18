@@ -25,15 +25,19 @@ import {
 } from "@/lib/model/auth-schema";
 import CustomInput from "./form-item";
 import { useAuthStore } from "@/lib/model/auth-store";
-import { BookOpen, Check, LucideProps } from "lucide-react";
+import { BookOpen, Check, Loader2, LucideProps } from "lucide-react";
 import { input_bg, primary_color } from "@/app/color";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BASEURL } from "@/lib/url";
-import { request } from "@/lib/base-client";
-import { POST_CONFIG, RestClientException } from "@/lib/rest-utils";
-import { ConfirmPasswordRespone, OtpRespone, VerifyRespone } from "@/lib/output/response";
+import { request, ApiError } from "@/lib/base-client";
+import { POST_CONFIG } from "@/lib/rest-utils";
+import {
+  ConfirmPasswordRespone,
+  OtpRespone,
+  VerifyRespone,
+} from "@/lib/output/response";
 import { useUserIdStore } from "@/lib/model/user-id-store";
+import { toast } from "sonner";
 
 type AuthDialogProsps = {
   open: boolean;
@@ -44,25 +48,35 @@ type AuthDialogProsps = {
   >;
 };
 
+/** Turn any thrown value into a user-friendly message for a toast. */
+function errorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) return error.message;
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
 export default function AuthDialog({
   open,
   onOpenChange,
   showTrigger = true,
   icon,
 }: AuthDialogProsps) {
+  const { setId } = useUserIdStore();
 
-  const {setId} = useUserIdStore();
-
-  const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY" | "Details">("REQUEST");
+  const [signUpStep, setSignUpStep] = useState<"REQUEST" | "VERIFY" | "Details">(
+    "REQUEST"
+  );
   const [otpEmail, SetOtpEmail] = useState<string>("");
-  const [rememberToken, setRememberToken] =  useState<string>("");
-  const [verifiedToken, setVerifiedToken] =  useState<string>("");
+  const [rememberToken, setRememberToken] = useState<string>("");
+  const [verifiedToken, setVerifiedToken] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
   const Icon = icon;
 
   const signInForm = useForm<SignInForm>({
     resolver: zodResolver(SignInSchema),
+    defaultValues: { email: "", password: "" },
   });
 
   const signUpForm = useForm<SignUpForm>({
@@ -71,6 +85,7 @@ export default function AuthDialog({
 
   const requestOtpForm = useForm<RequestOtpForm>({
     resolver: zodResolver(RequestOtpSchema),
+    defaultValues: { email: "" },
   });
 
   const varifyOtpForm = useForm<VarifyOtpForm>({
@@ -78,97 +93,98 @@ export default function AuthDialog({
   });
 
   const OnSignIn = async (form: SignInForm) => {
-
-    console.log(form)
-
+    setLoading(true);
     try {
-
       const response = await request("api/v1/login", {
-      ...POST_CONFIG,
-      body: JSON.stringify({
-         email : form.email,
-         password : form.password
-        }),
-      credentials : "include"
-       })
+        ...POST_CONFIG,
+        body: JSON.stringify({ email: form.email, password: form.password }),
+        credentials: "include",
+      });
 
-      const data : ConfirmPasswordRespone =await response.json()
+      const data: ConfirmPasswordRespone = await response.json();
       setId(data.newUserId);
-      console.log(data.newUserId)
       useAuthStore.getState().setIsAuth(true);
+      toast.success("Welcome back!");
+      onOpenChange(false);
       router.push("/books");
-
-    } catch(error) {
-        if (error instanceof RestClientException) {
-        console.error("Request error:", error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
+    } catch (error) {
+      toast.error(errorMessage(error, "Sign in failed. Please try again."));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const OnSignUp =async (form: SignUpForm) => {
-
+  const OnSignUp = async (form: SignUpForm) => {
+    setLoading(true);
     try {
-
       const response = await request("api/v1/confirm-password", {
-      ...POST_CONFIG,
-      body: JSON.stringify({
-         email: form.email,
-         name : form.name,
-         password : form.password,
-         confirmPassword : form.confirmPassword,
-         verifiedToken : verifiedToken
+        ...POST_CONFIG,
+        body: JSON.stringify({
+          email: form.email,
+          name: form.name,
+          password: form.password,
+          confirmPassword: form.confirmPassword,
+          verifiedToken: verifiedToken,
         }),
-      credentials : "include"
-       })
+        credentials: "include",
+      });
 
-      const data : ConfirmPasswordRespone =await response.json()
-      console.log(data.newUserId)
+      const data: ConfirmPasswordRespone = await response.json();
+      setId(data.newUserId);
       useAuthStore.getState().setIsAuth(true);
-
-    } catch(error) {
-
+      toast.success("Account created — welcome to BookEx!");
+      onOpenChange(false);
+      router.push("/books");
+    } catch (error) {
+      toast.error(errorMessage(error, "Could not create your account."));
+    } finally {
+      setLoading(false);
     }
-  
   };
 
-  const OnRequestOtp = async (form: RequestOtpForm) => {
-    console.log(form);
-
+  /** Returns true when the OTP was requested successfully. */
+  const OnRequestOtp = async (form: RequestOtpForm): Promise<boolean> => {
+    setLoading(true);
     try {
-
       const response = await request("api/v1/register", {
-      ...POST_CONFIG,
-      body: JSON.stringify({ email: form.email })
-       })
+        ...POST_CONFIG,
+        body: JSON.stringify({ email: form.email }),
+      });
 
-      const data : OtpRespone =await response.json()
-      setRememberToken(data.rememberToken)
-
-    } catch(error) {
-
+      const data: OtpRespone = await response.json();
+      setRememberToken(data.rememberToken);
+      toast.success("Verification code sent — check your inbox.");
+      return true;
+    } catch (error) {
+      toast.error(errorMessage(error, "Could not send the code."));
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const OnVarifyOtp = async (form: VarifyOtpForm) => {
-
-    try{
-
+  /** Returns true when the OTP was verified successfully. */
+  const OnVarifyOtp = async (form: VarifyOtpForm): Promise<boolean> => {
+    setLoading(true);
+    try {
       const response = await request("api/v1/verify-otp", {
         ...POST_CONFIG,
-        body : JSON.stringify({
-          email : form.email,
-          otp : form.otp,
-          rememberToken : rememberToken
-        })
-      })
+        body: JSON.stringify({
+          email: form.email,
+          otp: form.otp,
+          rememberToken: rememberToken,
+        }),
+      });
 
-      const data : VerifyRespone = await response.json()
-      setVerifiedToken(data.verifiedToken)
-
-    }catch (error) {
-
+      const data: VerifyRespone = await response.json();
+      setVerifiedToken(data.verifiedToken);
+      toast.success("Email verified!");
+      return true;
+    } catch (error) {
+      toast.error(errorMessage(error, "Invalid or expired code."));
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,9 +200,7 @@ export default function AuthDialog({
         <DialogTrigger asChild>
           <Button
             style={{ background: primary_color }}
-            className={`me-10 ${
-              Icon ? "flex justify-between items-center gap-2" : ""
-            }`}
+            className={`${Icon ? "flex justify-between items-center gap-2" : ""}`}
           >
             {Icon && <Icon />}
             <span className="text-sm font-semibold">Sign In</span>
@@ -194,7 +208,7 @@ export default function AuthDialog({
         </DialogTrigger>
       )}
 
-      <DialogContent className="w-[450px]">
+      <DialogContent className="w-full max-w-[450px]">
         <DialogHeader className="items-center">
           <DialogTitle className="flex gap-1 items-center">
             <BookOpen color={primary_color} /> Welcome to BookEx
@@ -238,7 +252,9 @@ export default function AuthDialog({
                   className="w-full"
                   style={{ backgroundColor: primary_color }}
                   type="submit"
+                  disabled={loading}
                 >
+                  {loading && <Loader2 className="animate-spin" />}
                   Sign In
                 </Button>
               </form>
@@ -249,10 +265,12 @@ export default function AuthDialog({
             {signUpStep === "REQUEST" && (
               <Form {...requestOtpForm}>
                 <form
-                  onSubmit={requestOtpForm.handleSubmit((form) => {
-                    OnRequestOtp(form);
-                    SetOtpEmail(form.email);
-                    setSignUpStep("VERIFY");
+                  onSubmit={requestOtpForm.handleSubmit(async (form) => {
+                    const ok = await OnRequestOtp(form);
+                    if (ok) {
+                      SetOtpEmail(form.email);
+                      setSignUpStep("VERIFY");
+                    }
                   })}
                 >
                   <CustomInput
@@ -272,11 +290,13 @@ export default function AuthDialog({
                     type="submit"
                     style={{ backgroundColor: primary_color }}
                     className="w-full mt-3"
+                    disabled={loading}
                   >
+                    {loading && <Loader2 className="animate-spin" />}
                     Request OTP
                   </Button>
 
-                  <div className="mt-4 border-1 p-4 bg-green-100 rounded-md">
+                  <div className="mt-4 border p-4 bg-green-100 rounded-md">
                     <span className="text-sm">
                       Welcome bonus: Get 10 credits when you join! List your
                       first book to earn even more.
@@ -294,22 +314,22 @@ export default function AuthDialog({
               <Form {...varifyOtpForm}>
                 <form
                   onSubmit={varifyOtpForm.handleSubmit(async (form) => {
-                    signUpForm.reset({
-                      name: "",
-                      email: otpEmail,
-                      password: "",
-                      confirmPassword: "",
-                    });
-
-                    OnVarifyOtp({ ...form });
-                    console.log("OK submit", form);
-                    setSignUpStep("Details");
+                    const ok = await OnVarifyOtp({ ...form });
+                    if (ok) {
+                      signUpForm.reset({
+                        name: "",
+                        email: otpEmail,
+                        password: "",
+                        confirmPassword: "",
+                      });
+                      setSignUpStep("Details");
+                    }
                   })}
                 >
-                  <div className="mt-4 border-1 p-4 bg-blue-100 rounded-md">
+                  <div className="mt-4 border p-4 bg-blue-100 rounded-md">
                     <span className="text-sm">
                       A verification code has been sent to:{" "}
-                      <h1 className="text-xl">{otpEmail}</h1>
+                      <span className="block text-xl">{otpEmail}</span>
                     </span>
                   </div>
 
@@ -333,12 +353,15 @@ export default function AuthDialog({
                     type="submit"
                     style={{ backgroundColor: primary_color }}
                     className="w-full mt-3"
+                    disabled={loading}
                   >
+                    {loading && <Loader2 className="animate-spin" />}
                     Verify OTP
                   </Button>
 
                   <Button
                     type="button"
+                    disabled={loading}
                     onClick={() => {
                       setSignUpStep("REQUEST");
                       SetOtpEmail("");
@@ -355,7 +378,7 @@ export default function AuthDialog({
             {signUpStep === "Details" && (
               <Form {...signUpForm}>
                 <form onSubmit={signUpForm.handleSubmit(OnSignUp)}>
-                  <div className="mt-4 border-1 p-4 bg-green-100 rounded-md flex gap-4">
+                  <div className="mt-4 border p-4 bg-green-100 rounded-md flex gap-4">
                     <Check />
                     <h1 className="text-sm items-center">
                       {" "}
@@ -402,7 +425,9 @@ export default function AuthDialog({
                     className="w-full"
                     style={{ backgroundColor: primary_color }}
                     type="submit"
+                    disabled={loading}
                   >
+                    {loading && <Loader2 className="animate-spin" />}
                     Create Account
                   </Button>
                 </form>

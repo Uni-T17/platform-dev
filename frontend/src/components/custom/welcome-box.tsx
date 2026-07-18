@@ -29,9 +29,9 @@ function WelcomeBox() {
     >
       <div className="justify-center flex">
         <img
-          src="logo.png"
-          alt="logo"
-          className="w-30 h-30 bg-muted-foreground rounded-full"
+          src="/logo.png"
+          alt="BookEx logo"
+          className="h-24 w-24 rounded-full object-cover"
         />
       </div>
       {isAuth ? (

@@ -116,7 +116,7 @@ function BookCard({ book }: Props) {
   }
 
   return (
-    <Card className="  p-0 cursor-pointer overflow-hidden grid rounded-2xl border shadow-sm w-[320px] h-[650px] ">
+    <Card className="p-0 cursor-pointer overflow-hidden flex flex-col rounded-2xl border shadow-sm w-full h-full transition-shadow hover:shadow-md">
       <CardHeader className="space-y-1 p-0 relative">
         <div className="absolute right-3 top-3 z-10 rounded-lg bg-white/95 px-2 py-0.5 text-sm font-medium text-black shadow">
           {props.credits} credits
