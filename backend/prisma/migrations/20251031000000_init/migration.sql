@@ -104,7 +104,8 @@ CREATE TABLE "Transaction" (
     "bookId" INTEGER NOT NULL,
     "sellerId" INTEGER NOT NULL,
     "buyerId" INTEGER NOT NULL,
-    "transactionHistoryId" INTEGER NOT NULL,
+    "sellerHistoryId" INTEGER NOT NULL,
+    "buyerHistoryId" INTEGER NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -185,7 +186,10 @@ ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_sellerId_fkey" FOREIGN KEY
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_buyerId_fkey" FOREIGN KEY ("buyerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_transactionHistoryId_fkey" FOREIGN KEY ("transactionHistoryId") REFERENCES "TransactionHistory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_sellerHistoryId_fkey" FOREIGN KEY ("sellerHistoryId") REFERENCES "TransactionHistory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_buyerHistoryId_fkey" FOREIGN KEY ("buyerHistoryId") REFERENCES "TransactionHistory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TransactionHistory" ADD CONSTRAINT "TransactionHistory_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -201,3 +205,4 @@ ALTER TABLE "Review" ADD CONSTRAINT "Review_transactionId_fkey" FOREIGN KEY ("tr
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_transactionHistoryId_fkey" FOREIGN KEY ("transactionHistoryId") REFERENCES "TransactionHistory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
