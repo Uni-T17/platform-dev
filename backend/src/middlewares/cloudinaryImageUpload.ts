@@ -17,6 +17,20 @@ export async function uploadToCloudinary(
   try {
     if (!req.file) return next(); // allow routes that don't send an image
 
+    // Fail fast with a clear, actionable message when image uploads aren't
+    // configured (missing CLOUDINARY_* env vars) instead of a cryptic SDK error.
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      const err: any = new Error(
+        "Image upload is not configured on the server. Please set the CLOUDINARY_* environment variables."
+      );
+      err.status = 500;
+      return next(err);
+    }
+
     const bufferStream = Readable.from(req.file.buffer);
 
     const result: any = await new Promise((resolve, reject) => {

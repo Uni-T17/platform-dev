@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
 
     return(
-        <section className="mb-4 max-w-5xl mx-auto">
+        <section className="mb-4 max-w-5xl mx-auto px-4 sm:px-6">
             <div className="flex justify-between mb-8">
                 <h1>Profile Page</h1>
 
@@ -176,11 +176,11 @@ export default function ProfilePage() {
               <>
                 <TopCard data={info}/>
 
-                <div className="flex justify-between mt-8 gap-4 mb-8">
-                  <ProfileSecondCard onClick={goCredits} title="Credits" details={info?.creditsBalance.toString() || "0"} icon={CreditCardIcon}/>
-                  <ProfileSecondCard onClick={golist} title="Books Listed" details={info?.bookListed.toString() || "0"} icon={BookOpen}/>
-                  <ProfileSecondCard onClick={goExchanges} title="Exchanges" details={info?.exchanges.toString() || "0"} icon={RefreshCw}/>
-                  <ProfileSecondCard onClick={goRating} title="Rating" details={info?.profileCard.rating.toString() || "0"} icon={Award}/>
+                <div className="grid grid-cols-2 md:grid-cols-4 mt-8 gap-4 mb-8">
+                  <ProfileSecondCard onClick={goCredits} title="Credits" details={info?.creditsBalance?.toString() ?? "0"} icon={CreditCardIcon}/>
+                  <ProfileSecondCard onClick={golist} title="Books Listed" details={info?.bookListed?.toString() ?? "0"} icon={BookOpen}/>
+                  <ProfileSecondCard onClick={goExchanges} title="Exchanges" details={info?.exchanges?.toString() ?? "0"} icon={RefreshCw}/>
+                  <ProfileSecondCard onClick={goRating} title="Rating" details={info?.profileCard?.rating?.toString() ?? "0"} icon={Award}/>
                 </div>
 
                 {info.contactInfo && (

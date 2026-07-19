@@ -61,7 +61,8 @@ app.use(routes);
 
 // if there is an error these codes will be executed (means don't stop the server will still run)
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-  // console.error("🔥 ERROR:", error?.stack || error);
+  // Log every error so 500s are diagnosable in the hosting platform's logs.
+  console.error("🔥 ERROR:", error?.stack || error);
 
   if (error instanceof multer.MulterError) {
     return res.status(400).json({ message: error.message, code: error.code });

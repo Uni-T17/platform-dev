@@ -16,33 +16,52 @@ import {
 import { CreditResponse, UserProfileDetails } from "@/lib/output/response";
 import DeleteRequest from "@/components/custom/delete-request";
 import { useCreditState } from "@/lib/model/credit-store";
+import { toast } from "sonner";
 
 export default function CreditPage() {
+  const {
+    totalEarn,
+    totalSpent,
+    exchanges,
+    credit,
+    setCredit,
+    setExchanges,
+    setTotalEarn,
+    setTotalSpent,
+    rating,
+    setRating,
+  } = useCreditState();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     const load = async () => {
-      const response = await request("api/v1/owner/credits/get-credits", {
-        method : "GET",
-        credentials : "include"
-      })
+      try {
+        setLoading(true);
+        const response = await request("api/v1/owner/credits/get-credits", {
+          method: "GET",
+          credentials: "include",
+        });
 
-      const data = await response.json() as CreditResponse
-      setCredit(data.data.balance)
-      setTotalEarn(data.data.totalEarned)
-      setTotalSpent(data.data.totalSpent)
-      setRating(data.data.rating)
-      setExchanges(data.data.exchanges)
+        const data = (await response.json()) as CreditResponse;
+        setCredit(data.data.balance);
+        setTotalEarn(data.data.totalEarned);
+        setTotalSpent(data.data.totalSpent);
+        setRating(data.data.rating);
+        setExchanges(data.data.exchanges);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to load credits"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    }
-
-    load()
-
-  })
-
-  const {totalEarn, totalSpent, exchanges,credit, setCredit, setExchanges, setTotalEarn, setTotalSpent,rating, setRating } = useCreditState();
-  const router = useRouter();
-  const [info, setInfo] = useState<UserProfileDetails>();
+    load();
+    // Run once on mount; store setters are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">

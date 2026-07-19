@@ -16,23 +16,25 @@ import CustomInput from "./form-item";
 import CustomTextArea from "./text-area";
 import { Form } from "../ui/form";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function BookDetails() {
 
     const router = useRouter();
-    
+    const [saving, setSaving] = useState(false);
+
     const form = useForm<BookDetailsType>({
         resolver : zodResolver(BookDetailsSchema)
-        
+
     })
 
-    const onCancel =  () => { 
+    const onCancel =  () => {
         form.reset()
     }
 
     const onSave = async () => {
-        console.log(form.getValues())
-
         const values = form.getValues();
 
         const fd = new FormData();
@@ -46,13 +48,12 @@ export default function BookDetails() {
         };
         const categoryInput = (values.category || "").toString().trim().toUpperCase();
         const categoryToSend = categoryMap[categoryInput] || categoryInput;
-        console.log("Sending category:", categoryInput, "->", categoryToSend);
         fd.append("category", categoryToSend);
         fd.append("condition", values.condition);
         fd.append("description", values.description);
         fd.append("price", String(values.price));
         fd.append("avaiableStatus", "true");
-        
+
         const bookVal = values.book as unknown as File | File[] | null | undefined;
         if (bookVal instanceof File) {
             fd.append("book", bookVal);
@@ -60,22 +61,28 @@ export default function BookDetails() {
             fd.append("book", bookVal[0]);
         }
 
+        setSaving(true);
+        try {
+            await request("api/v1/owner/books/create-new-book", {
+                method: "POST",
+                credentials: "include",
+                body: fd,
+            });
 
-        const response = await request("api/v1/owner/books/create-new-book", {
-                method : "POST",
-                credentials : "include",
-                body : fd
-        }) 
-
-            if(response.ok) {
-                router.push("/profile")
-            }
-            console.log(await response.json())
+            toast.success("Book listed successfully!");
+            router.push("/profile");
+        } catch (error) {
+            toast.error(
+                error instanceof Error ? error.message : "Could not list your book."
+            );
+        } finally {
+            setSaving(false);
         }
-    
+    }
+
 
     return(
-        <Card className="w-2/4">
+        <Card className="w-full max-w-2xl">
             <CardContent>
                 <h1 className="font-bold">Book Details</h1>
                 <span>Fill out the information below to list your book for exchange.</span>
@@ -154,11 +161,12 @@ export default function BookDetails() {
 
 
                         <div className="flex justify-between mt-4 gap-2">
-                            <Button style={{backgroundColor : "white"}}  className="w-1/2 border-1">
+                            <Button type="button" onClick={onCancel} disabled={saving} style={{backgroundColor : "white"}}  className="w-1/2 border-1">
                                 <span className="text-black">Cancel</span>
                             </Button>
 
-                            <Button style={{backgroundColor : primary_color}} onClick={form.handleSubmit(onSave)} className="w-1/2 border-1">
+                            <Button type="button" style={{backgroundColor : primary_color}} onClick={form.handleSubmit(onSave)} disabled={saving} className="w-1/2 border-1">
+                                {saving && <Loader2 className="animate-spin" />}
                                 <span>List Book</span>
                             </Button>
                         </div>

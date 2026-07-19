@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client"
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -139,10 +140,11 @@ export default function MyExchangesPage() {
       // refresh lists
       setReloadKey((k) => k + 1);
       setDetailOpen(false);
+      toast.success(
+        status === "APPROVE" ? "Request accepted." : "Request declined."
+      );
     } catch (e: any) {
-      console.error("Failed to process request", e);
-      // show error in modal (simple alert for now)
-      alert(e?.message ?? "Failed to process request");
+      toast.error(e?.message ?? "Failed to process request");
     }
   };
   
