@@ -7,6 +7,7 @@ import { UserProfileDetails, ApiBook } from "@/lib/output/response";
 import { CalendarIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client";
+import { PageLoader } from "@/components/custom/loaders";
 import {
   ArrowLeft,
   BookOpenIcon,
@@ -66,7 +67,7 @@ export default function PublicProfilePage() {
       </div>
 
       {loading ? (
-        <div>Loading profile…</div>
+        <PageLoader message="Loading profile..." />
       ) : error ? (
         <div className="text-red-600">{error}</div>
       ) : data ? (

@@ -9,6 +9,8 @@ import { request } from "@/lib/base-client"
 import { useUserIdStore } from "@/lib/model/user-id-store"
 import { ApiBook } from "@/lib/output/response"
 import { BASEURL } from "@/lib/url"
+import { PageLoader } from "@/components/custom/loaders"
+import { toast } from "sonner"
 
 type OwnerBookResponse = {
   message: string
@@ -84,7 +86,7 @@ export default function ViewBookDetails() {
       </p>
 
       {loading && (
-        <div className="text-center text-gray-500 py-10">Loading books…</div>
+        <PageLoader message="Loading your books..." />
       )}
       {error && <div className="text-center text-red-600">{error}</div>}
       {!loading && books.length === 0 && (
@@ -177,9 +179,9 @@ async function handleDelete(id: number) {
       method: "DELETE",
       credentials: "include",
     })
-    alert("Book deleted successfully!")
+    toast.success("Book deleted.")
     window.location.reload()
   } catch (e: any) {
-    alert("Failed to delete: " + (e.message ?? "Unknown error"))
+    toast.error("Failed to delete: " + (e.message ?? "Unknown error"))
   }
 }

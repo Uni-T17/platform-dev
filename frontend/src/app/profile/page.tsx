@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { request } from "@/lib/base-client"
 import { UserProfileRespone } from "@/lib/output/response"
-import { Award, BookOpen, CreditCardIcon, LocationEdit, LogOut, LucideProps, Mail, MapPin, Pencil, Phone, RefreshCw, Star, TimerIcon } from "lucide-react"
+import { Award, BookOpen, CreditCardIcon, Loader2, LocationEdit, LogOut, LucideProps, Mail, MapPin, Pencil, Phone, RefreshCw, Star, TimerIcon } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useAuthStore } from "@/lib/model/auth-store";
 import { useEffect, useState } from "react"
 import { primary_color } from "../color"
@@ -162,14 +163,33 @@ export default function ProfilePage() {
 
                                             <div className="flex justify-end gap-3">
                                                 <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-                                                <Button type="submit" className="bg-teal-600" disabled={editLoading}>{editLoading ? 'Saving...' : 'Save'}</Button>
+                                                <Button type="submit" className="bg-teal-600" disabled={editLoading}>
+                                                    {editLoading && <Loader2 className="animate-spin" />}
+                                                    {editLoading ? 'Saving...' : 'Save'}
+                                                </Button>
                                             </div>
                                         </form>
                                     </DialogContent>
                                 </Dialog>
             </div>
 
-            {loading && <p>Loading profile…</p>}
+            {loading && (
+              <div className="space-y-6">
+                <div className="rounded-xl border p-6 flex gap-6 items-center">
+                  <Skeleton className="h-24 w-24 rounded-full" />
+                  <div className="flex-1 space-y-3">
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 rounded-xl" />
+                  ))}
+                </div>
+              </div>
+            )}
             {error && <p className="text-red-600">{error}</p>}
 
             {info && (

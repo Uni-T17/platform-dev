@@ -5,6 +5,7 @@ import { StarFilledIcon } from "@radix-ui/react-icons"
 import { MessagesSquare } from "lucide-react"
 import { useEffect, useState } from "react"
 import { request } from "@/lib/base-client"
+import { CardListSkeleton } from "@/components/custom/loaders"
 
 type ReviewCardProps = {
     name : string,
@@ -53,7 +54,7 @@ export default function ViewRating() {
             <h1 className="text-3xl font-bold mb-4">My Review</h1>
             <h1>Reviews from users you've exchanged books with</h1>
 
-            {loading && <div className="text-gray-500">Loading reviews…</div>}
+            {loading && <CardListSkeleton />}
             {error && <div className="text-red-600">{error}</div>}
             {!loading && reviews.map((r, i) => (
                 <ReviewCard key={i} name={r.name} at={r.at} rating={r.rating} comment={r.comment} bookName={r.bookName} />

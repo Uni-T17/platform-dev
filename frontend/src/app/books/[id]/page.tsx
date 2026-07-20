@@ -11,6 +11,7 @@ import ExchangedInformation from "@/components/custom/exchanged-information";
 import RequestForm from "@/components/custom/request-form";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client";
+import { PageLoader } from "@/components/custom/loaders";
 
 export default function BookDetailPage() {
   const { id } = useParams();
@@ -56,7 +57,7 @@ export default function BookDetailPage() {
     load();
   }, [id]);
 
-  if (loading) return <p className="text-center mt-10">Loading book...</p>;
+  if (loading) return <PageLoader message="Loading book..." />;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
   if (!book) return <p className="text-center mt-10">Book not found</p>;
 
@@ -162,6 +163,7 @@ export default function BookDetailPage() {
                   )}
 
                   <RequestForm
+                    submitting={submitting}
                     book={{
                       id: book.id.toString(),
                       image: book.image,

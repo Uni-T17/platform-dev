@@ -10,6 +10,7 @@ import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { request } from "@/lib/base-client"
 import { toast } from "sonner";
+import { CardListSkeleton, Spinner } from "@/components/custom/loaders";
 import {
   Dialog,
   DialogContent,
@@ -129,7 +130,11 @@ export default function MyExchangesPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailItem, setDetailItem] = useState<any | null>(null);
 
+  // Which action is currently in flight ("APPROVE" | "REJECT" | null)
+  const [processing, setProcessing] = useState<"APPROVE" | "REJECT" | null>(null);
+
   const processRequest = async (requestId: number, status: "APPROVE" | "REJECT") => {
+    setProcessing(status);
     try {
       await request("api/v1/owner/requests/update-request", {
         method: "PUT",
@@ -145,6 +150,8 @@ export default function MyExchangesPage() {
       );
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to process request");
+    } finally {
+      setProcessing(null);
     }
   };
   
@@ -171,7 +178,7 @@ export default function MyExchangesPage() {
               <TabsContent value="pending">
                 <div className="flex justify-center w-full mt-4">
                   <div className="w-full max-w-4xl space-y-4">
-                    {loading && <div className="text-gray-500">Loading…</div>}
+                    {loading && <CardListSkeleton />}
                     {error && <div className="text-red-600">{error}</div>}
                     {!loading && pending.length === 0 && <div className="text-gray-500">No pending requests.</div>}
                     {!loading && pending.map((p, i) => (
@@ -216,7 +223,7 @@ export default function MyExchangesPage() {
           <TabsContent value="pending">
             <div className="flex justify-center w-full mt-4">
               <div className="w-full max-w-4xl space-y-4">
-                {loading && <div className="text-gray-500">Loading…</div>}
+                {loading && <CardListSkeleton />}
                 {error && <div className="text-red-600">{error}</div>}
                 {!loading && ownerPending.length === 0 && <div className="text-gray-500">No incoming pending requests.</div>}
                 {!loading && ownerPending.map((item: any, i: number) => (
@@ -261,7 +268,7 @@ export default function MyExchangesPage() {
       {selected === "owner-complete" && (
         <div className="flex justify-center w-full mt-4">
           <div className="w-full max-w-4xl space-y-4">
-            {loading && <div className="text-gray-500">Loading…</div>}
+            {loading && <CardListSkeleton />}
             {error && <div className="text-red-600">{error}</div>}
             {!loading && ownerAccepted.length === 0 && <div className="text-gray-500">No history.</div>}
             {!loading && ownerAccepted.map((item: any, i: number) => (
@@ -280,7 +287,7 @@ export default function MyExchangesPage() {
         </div>
       )}
       {/* Owner detail modal */}
-      <RequestDetailDialog open={detailOpen} onOpenChange={setDetailOpen} item={detailItem} onProcess={processRequest} />
+      <RequestDetailDialog open={detailOpen} onOpenChange={setDetailOpen} item={detailItem} onProcess={processRequest} processing={processing} />
     </>
   );
 }
@@ -292,11 +299,13 @@ function RequestDetailDialog({
   onOpenChange,
   item,
   onProcess,
+  processing,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   item: any | null;
   onProcess: (requestId: number, status: "APPROVE" | "REJECT") => void;
+  processing: "APPROVE" | "REJECT" | null;
 }) {
   if (!item) return null;
 
@@ -336,8 +345,22 @@ function RequestDetailDialog({
           )}
 
           <div className="flex gap-3 justify-end mt-4">
-            <Button onClick={() => onProcess(detail.requestId, "APPROVE")} className="bg-teal-600 text-white">Accept Request</Button>
-            <Button variant="outline" onClick={() => onProcess(detail.requestId, "REJECT")}>Decline</Button>
+            <Button
+              onClick={() => onProcess(detail.requestId, "APPROVE")}
+              disabled={processing !== null}
+              className="bg-teal-600 text-white"
+            >
+              {processing === "APPROVE" && <Spinner />}
+              Accept Request
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => onProcess(detail.requestId, "REJECT")}
+              disabled={processing !== null}
+            >
+              {processing === "REJECT" && <Spinner />}
+              Decline
+            </Button>
           </div>
         </div>
       </DialogContent>

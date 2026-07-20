@@ -17,6 +17,8 @@ import { CreditResponse, UserProfileDetails } from "@/lib/output/response";
 import DeleteRequest from "@/components/custom/delete-request";
 import { useCreditState } from "@/lib/model/credit-store";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatCardsSkeleton } from "@/components/custom/loaders";
 
 export default function CreditPage() {
   const {
@@ -62,6 +64,16 @@ export default function CreditPage() {
     // Run once on mount; store setters are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto p-4 space-y-6">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <StatCardsSkeleton count={3} />
+        <Skeleton className="h-40 w-full rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">

@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -27,6 +28,7 @@ type Props = {
   defaults?: Partial<RequestFormData>; // prefill contact info from profile
   onCancel?: () => void;
   onSubmitted?: (data: RequestFormData) => void;
+  submitting?: boolean; // parent is sending the request
 };
 
 export default function RequestFormZod({
@@ -35,9 +37,8 @@ export default function RequestFormZod({
   defaults,
   onCancel,
   onSubmitted,
+  submitting = false,
 }: Props) {
-  console.log("Book object:", book);
-  console.log("Book credits:", book.credits);
 
   const schema = React.useMemo(
     () => makeRequestSchema({ maxCredits: myCredits }),
@@ -129,6 +130,7 @@ export default function RequestFormZod({
             <Button
               type="button"
               variant="outline"
+              disabled={submitting}
               onClick={() => {
                 form.reset();
                 onCancel?.();
@@ -136,8 +138,9 @@ export default function RequestFormZod({
             >
               Cancel
             </Button>
-            <Button type="submit" className="bg-[#0F8B8D] hover:bg-[#0d7476]">
-              Send Request
+            <Button type="submit" disabled={submitting} className="bg-[#0F8B8D] hover:bg-[#0d7476]">
+              {submitting && <Loader2 className="animate-spin" />}
+              {submitting ? "Sending..." : "Send Request"}
             </Button>
           </div>
         </form>
